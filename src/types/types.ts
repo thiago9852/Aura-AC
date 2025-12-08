@@ -1,5 +1,5 @@
 export interface SymbolItem {
-    id: number;
+    id: string;
     label: string;
     iconName?: string;
     image?: string;
@@ -8,7 +8,7 @@ export interface SymbolItem {
 }
 
 export interface Category {
-    id: number;
+    id: string;
     icon: string;
     name: string;
     items: SymbolItem[];
@@ -17,7 +17,7 @@ export interface Category {
 }
 
 export interface AgendaItem {
-    id: number;
+    id: string;
     title: string;
     type: 'event' | 'class' | 'task';
     date: string;
