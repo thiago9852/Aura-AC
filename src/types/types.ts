@@ -1,0 +1,45 @@
+export interface SymbolItem {
+    id: number;
+    label: string;
+    iconName?: string;
+    image?: string;
+    colorCode?: string;
+    speechText?: string;
+}
+
+export interface Category {
+    id: number;
+    icon: string;
+    name: string;
+    items: SymbolItem[];
+    color: string;
+    isCustom?: boolean;
+}
+
+export interface AgendaItem {
+    id: number;
+    title: string;
+    type: 'event' | 'class' | 'task';
+    date: string;
+    time?: string;
+    completed?: boolean;
+    archived?: boolean;
+}
+
+export interface UserSettings {
+    highContrast: boolean;
+    voiceId: string | null;
+    gridSize: 'small' | 'medium' | 'large';
+    speakingRate: number; // 0.5 até 2
+    darkMode: boolean;
+    showTextOnly: boolean;
+}
+
+export interface User {
+    name: string;
+    age: number;
+    email: string;
+    avatar?: string;
+    settings: UserSettings;
+    agendaItems: AgendaItem[];
+}
