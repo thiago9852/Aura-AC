@@ -43,3 +43,7 @@ export interface User {
     settings: UserSettings;
     agendaItems: AgendaItem[];
 }
+
+export type SymbolOrPhrase = SymbolItem & { tempId: string };
+
+export type NavigationTab = 'home' | 'favorites' | 'agenda' | 'profile' | 'manage';
