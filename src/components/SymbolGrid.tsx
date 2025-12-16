@@ -5,7 +5,7 @@ import SymbolCard from './SymbolCard';
 import {MessageCircle} from 'lucide-react-native';
 
 export default function SymbolGrid() {
-  const { categories, addToSentence, activeTab } = useAAC();
+  const { categories, addToSentence, activeTab, speak } = useAAC();
 
   if (activeTab !== 'home') return null;
 
@@ -52,7 +52,10 @@ export default function SymbolGrid() {
           <View key={item.id} style={styles.cardWrapper}>
             <SymbolCard 
                 item={item} 
-                onPress={() => addToSentence(item)} 
+                onPress={() => {
+                  speak(item.label);
+                  addToSentence(item);
+                }} 
             />
           </View>
         ))}
