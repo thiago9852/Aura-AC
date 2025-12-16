@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
-import { User, UserSettings, Category, SymbolOrPhrase, SymbolItem, NavigationTab } from '../types/types';
+import { User, UserSettings, Category, SymbolOrPhrase, SymbolItem, NavigationTab } from '../types';
 import { INITIAL_CATEGORIES } from '../data/vocab';
 
 // Configuração padrão para quando não houver usuário logado
@@ -40,7 +40,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
     const [sentence, setSentence] = useState<SymbolOrPhrase[]>([]);
 
-    
+
     // Usa settings do usuário se existir, senão usa padrão
     const settings = user?.settings || DEFAULT_SETTINGS;
 
@@ -64,9 +64,9 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const clearSentence = () => setSentence([]);
 
     const speak = (text: string) => {
-        Speech.speak(text, { 
+        Speech.speak(text, {
             language: 'pt-BR',
-            rate: settings.speakingRate 
+            rate: settings.speakingRate
         });
     };
 

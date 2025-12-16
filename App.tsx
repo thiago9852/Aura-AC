@@ -4,6 +4,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AACProvider, useAAC } from './src/context/AACContext';
 import Header from './src/components/Header';
 import Sidebar from './src/components/Sidebar';
+import SymbolGrid from './src/components/SymbolGrid';
 
 // Componente interno do Layout
 function MainLayout() {
@@ -17,14 +18,23 @@ function MainLayout() {
       {/* Topo */}
       <Header />
 
-      {/* Miolo */}
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ color: '#cbd5e1', fontSize: 18, fontWeight: 'bold' }}>
-           Conteúdo: {activeTab.toUpperCase()}
-        </Text>
-        <Text style={{ color: '#94a3b8', marginTop: 8 }}>
-           (Carcaça pronta - Aguardando implementação)
-        </Text>
+      {/* Miolo (dinâmico) */}
+      <View style={{ flex: 1 }}>
+        
+        {/* Lógica: Se for HOME, mostra os Símbolos. Se for outra coisa, mostra texto. */}
+        {activeTab === 'home' ? (
+           <SymbolGrid />
+        ) : (
+           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+             <Text style={{ color: '#cbd5e1', fontSize: 18, fontWeight: 'bold' }}>
+                {activeTab.toUpperCase()}
+             </Text>
+             <Text style={{ color: '#94a3b8', marginTop: 8 }}>
+                (Em desenvolvimento)
+             </Text>
+           </View>
+        )}
+
       </View>
 
       {/* Rodapé */}

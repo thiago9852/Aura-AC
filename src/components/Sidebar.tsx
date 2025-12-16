@@ -2,12 +2,12 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Home, Star, Calendar, User as UserIcon } from 'lucide-react-native';
 import { useAAC } from '../context/AACContext';
-import { NavigationTab } from '../types/types';
+import { NavigationTab } from '../types';
 
 export default function Sidebar() {
   const { activeTab, setActiveTab } = useAAC();
 
-  const tabs: {id: NavigationTab, icon: any, label: string}[] = [
+  const tabs: { id: NavigationTab, icon: any, label: string }[] = [
     { id: 'home', icon: Home, label: 'Início' },
     { id: 'favorites', icon: Star, label: 'Favoritos' },
     { id: 'agenda', icon: Calendar, label: 'Agenda' },
@@ -19,13 +19,13 @@ export default function Sidebar() {
       {tabs.map((t) => {
         const isActive = activeTab === t.id;
         return (
-          <TouchableOpacity 
-            key={t.id} 
-            style={styles.tab} 
+          <TouchableOpacity
+            key={t.id}
+            style={styles.tab}
             onPress={() => setActiveTab(t.id)}
           >
             <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
-                <t.icon size={24} color={isActive ? '#2563eb' : '#94a3b8'} />
+              <t.icon size={24} color={isActive ? '#2563eb' : '#94a3b8'} />
             </View>
             <Text style={[styles.label, isActive && styles.activeLabel]}>{t.label}</Text>
           </TouchableOpacity>

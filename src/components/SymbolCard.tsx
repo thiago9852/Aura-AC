@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import * as Icons from 'lucide-react-native';
-import { SymbolItem } from '../types/types';
+import { SymbolItem } from '../types';
 
 interface Props {
   item: SymbolItem;
