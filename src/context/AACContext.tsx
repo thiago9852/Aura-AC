@@ -20,12 +20,14 @@ interface AACContextType {
     setActiveTab: (tab: NavigationTab) => void;
     categories: Category[];
     activeCategoryId: string | null;
-    setActiveCategoryId: (id: string | null) => void;
+    //setActiveCategoryId: (id: string | null) => void;
+    navigateToCategory: (id: string) => void;
+    goBack: () => void;
     sentence: SymbolOrPhrase[];
     addToSentence: (item: SymbolItem) => void;
     removeFromSentence: (tempId: string) => void;
     clearSentence: () => void;
-    settings: UserSettings; // Exposto separadamente para facilidade
+    settings: UserSettings;
     speak: (text: string) => void;
 }
 
@@ -37,9 +39,19 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
     const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
     const [sentence, setSentence] = useState<SymbolOrPhrase[]>([]);
+
     
-    // Usamos settings do usuário se existir, senão usa padrão
+    // Usa settings do usuário se existir, senão usa padrão
     const settings = user?.settings || DEFAULT_SETTINGS;
+
+    // --- Helpers de Navegação ---
+    const navigateToCategory = (id: string) => {
+        setActiveCategoryId(id);
+    };
+
+    const goBack = () => {
+        setActiveCategoryId(null);
+    };
 
     const addToSentence = (item: SymbolItem) => {
         setSentence(prev => [...prev, { ...item, tempId: Date.now().toString() + Math.random() }]);
@@ -70,7 +82,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return (
         <AACContext.Provider value={{
             user, activeTab, setActiveTab,
-            categories, activeCategoryId, setActiveCategoryId,
+            categories, activeCategoryId, navigateToCategory, goBack,
             sentence, addToSentence, removeFromSentence, clearSentence,
             settings, speak
         }}>
