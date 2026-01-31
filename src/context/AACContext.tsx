@@ -21,6 +21,7 @@ interface AACContextType {
 
     categories: Category[];
     addCategory: (data: Omit<Category, 'id' | 'items'>) => void;
+    updateCategory: (id: string, data: Partial<Category>) => void;
     deleteCategory: (id: string) => void;
     activeCategoryId: string | null;
     //setActiveCategoryId: (id: string | null) => void;
@@ -95,6 +96,12 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setCategories(prev => [...prev, newCategory]);
     };
 
+    const updateCategory = (id: string, data: Partial<Category>) => {
+        setCategories(prev => prev.map(cat => 
+            cat.id === id ? { ...cat, ...data } : cat
+        ));
+    };
+    
     const deleteCategory = (id: string) => {
         
         if (id === 'core') return; 
@@ -105,10 +112,11 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
     };
 
+
     return (
         <AACContext.Provider value={{
             user, activeTab, setActiveTab,
-            categories, addCategory, deleteCategory, activeCategoryId, navigateToCategory, goBack,
+            categories, addCategory, updateCategory, deleteCategory, activeCategoryId, navigateToCategory, goBack,
             sentence, addToSentence, removeFromSentence, clearSentence,
             settings, speak
         }}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { Home, Star, Calendar, User as UserIcon } from 'lucide-react-native';
+import { Home, Star, Calendar, FolderCog } from 'lucide-react-native';
 import { useAAC } from '../context/AACContext';
 import { NavigationTab } from '../types';
 
@@ -11,7 +11,7 @@ export default function Sidebar() {
     { id: 'home', icon: Home, label: 'Início' },
     { id: 'favorites', icon: Star, label: 'Favoritos' },
     { id: 'agenda', icon: Calendar, label: 'Agenda' },
-    { id: 'profile', icon: UserIcon, label: 'Perfil' },
+    { id: 'manage', icon: FolderCog, label: 'Gerenciar' }
   ];
 
   return (
