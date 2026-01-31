@@ -25,7 +25,7 @@ function MainLayout() {
         {/* Lógica: Se for HOME, mostra os Símbolos. Se for outra coisa, mostra texto. */}
         {activeTab === 'home' ? (
            <SymbolGrid />
-        ) : activeTab === 'manage' ? ( // <--- Nova verificação
+        ) : activeTab === 'manage' ? (
            <CategoryManager />
         ) : (
            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
