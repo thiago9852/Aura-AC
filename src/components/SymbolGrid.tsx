@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { useAAC } from '../context/AACContext';
 import SymbolCard from './SymbolCard';
+import CreateSymbolModal from './creates/CreateSymbolModal'; 
 
 import { 
     ArrowLeft, MessageCircle, Heart, Star, LayoutGrid, Check, X, Hand, 
     ThumbsUp, MousePointer2, LifeBuoy, Octagon, CheckCircle, Utensils,
-    Smile, Home, Gamepad, Music, Sun, Book, Briefcase, ShoppingBag, Folder
+    Smile, Home, Gamepad, Music, Sun, Book, Briefcase, ShoppingBag, Folder, Plus
 } from 'lucide-react-native';
 
 const ICON_MAP: any = {
@@ -17,6 +18,9 @@ const ICON_MAP: any = {
 
 export default function SymbolGrid() {
   const { categories, addToSentence, activeTab, speak, activeCategoryId, goBack, navigateToCategory } = useAAC();
+  
+  // estado do Modal
+  const [showAddModal, setShowAddModal] = useState(false); 
 
   if (activeTab !== 'home') return null;
 
@@ -24,6 +28,8 @@ export default function SymbolGrid() {
   if (activeCategoryId) {
     const category = categories.find(c => c.id === activeCategoryId);
     if (!category) return null;
+
+    const dataWithAddButton = [...category.items, { id: 'ADD_BUTTON_ID', label: 'Novo', isAddButton: true }];
 
     return (
       <View style={styles.container}>
@@ -35,21 +41,43 @@ export default function SymbolGrid() {
         </View>
         
         <FlatList
-          data={category.items}
+          data={dataWithAddButton} 
           keyExtractor={item => item.id}
           numColumns={3}
           contentContainerStyle={styles.flatListContent}
-          renderItem={({ item }) => (
-            <View style={styles.cardWrapper}>
-                <SymbolCard 
-                    item={item} 
-                    onPress={() => {
-                        speak(item.label);
-                        addToSentence(item);
-                    }} 
-                />
-            </View>
-          )}
+          renderItem={({ item }: { item: any }) => {
+            if (item.isAddButton) {
+                return (
+                    <View style={styles.cardWrapper}>
+                        <TouchableOpacity 
+                            style={styles.addCard} 
+                            onPress={() => setShowAddModal(true)}
+                        >
+                            <Plus size={32} color="#94a3b8" />
+                            <Text style={styles.addText}>Novo</Text>
+                        </TouchableOpacity>
+                    </View>
+                );
+            }
+
+            return (
+                <View style={styles.cardWrapper}>
+                    <SymbolCard 
+                        item={item} 
+                        onPress={() => {
+                            speak(item.label);
+                            addToSentence(item);
+                        }} 
+                    />
+                </View>
+            );
+          }}
+        />
+
+        <CreateSymbolModal 
+            visible={showAddModal} 
+            onClose={() => setShowAddModal(false)}
+            categoryId={activeCategoryId}
         />
       </View>
     );
@@ -103,11 +131,11 @@ export default function SymbolGrid() {
                     return (
                         <TouchableOpacity 
                             key={cat.id} 
-                            style={[styles.catCard, { backgroundColor: catColor + '20' }]}
+                            style={[styles.catCard, { backgroundColor: catColor + '30' }]}
                             onPress={() => navigateToCategory(cat.id)}
                         >
-                            <IconComponent size={32} color="black" />
-                            <Text style={styles.catText}>{cat.name}</Text>
+                            <IconComponent size={32} style={{ color: catColor }}/>
+                            <Text style={[styles.catText, { color: catColor }]}>{cat.name}</Text>
                         </TouchableOpacity>
                     );
                 })}
@@ -144,7 +172,7 @@ const styles = StyleSheet.create({
     // Wrapper do Símbolo (Acesso Rápido)
     cardWrapper: { width: '31%', aspectRatio: 1 },
 
-    // Card da Categoria (Pasta)
+    // Card da Categoria
     catCard: {
         width: '48%',
         height: 100,
@@ -157,7 +185,21 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         marginBottom: 4
     },
-    catText: { fontSize: 16, fontWeight: 'bold', color: 'black', marginTop: 8 },
+    catText: { fontSize: 16, fontWeight: 'bold', marginTop: 8 },
 
-    emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 20 }
+    emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 20 },
+
+    // Card item Categoria
+    addCard: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#f1f5f9',
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#cbd5e1',
+        borderStyle: 'dashed',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    addText: { color: '#94a3b8', fontWeight: 'bold', marginTop: 4 }
 });

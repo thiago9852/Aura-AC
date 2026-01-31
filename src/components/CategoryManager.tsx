@@ -72,9 +72,8 @@ export default function CategoryManager() {
 
                     return (
                         <View style={styles.item}>
-                            {/* Ícone Colorido */}
+                            
                             <View style={[styles.iconBox, { backgroundColor: catColor + '20' }]}> 
-                                {/* '20' no final do hex cria uma transparência (alpha) */}
                                 <IconComponent size={24} color={catColor} />
                             </View>
 
@@ -85,7 +84,7 @@ export default function CategoryManager() {
                             
                             {/* Botões de Ação */}
                             <View style={styles.actions}>
-                                {/* Só permite editar se não for Core */}
+                                
                                 {item.id !== 'core' && (
                                     <>
                                         <TouchableOpacity 
