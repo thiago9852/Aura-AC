@@ -18,10 +18,14 @@ interface AACContextType {
     user: User | null;
     activeTab: NavigationTab;
     setActiveTab: (tab: NavigationTab) => void;
+
     categories: Category[];
+    addCategory: (data: Omit<Category, 'id' | 'items'>) => void;
+    deleteCategory: (id: string) => void;
     activeCategoryId: string | null;
     //setActiveCategoryId: (id: string | null) => void;
     navigateToCategory: (id: string) => void;
+
     goBack: () => void;
     sentence: SymbolOrPhrase[];
     addToSentence: (item: SymbolItem) => void;
@@ -70,7 +74,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         });
     };
 
-    // Carregar dados (simplificado)
+    // Carregar dados
     useEffect(() => {
         const load = async () => {
             const savedCats = await AsyncStorage.getItem('aac_categories');
@@ -79,10 +83,32 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         load();
     }, []);
 
+
+    //              ====== CATEGORIAS =======
+    const addCategory = (categoryData: Omit<Category, 'id' | 'items'>) => {
+        const newCategory: Category = {
+            id: `custom_${Date.now()}`, // ID único baseado no tempo
+            items: [],
+            ...categoryData,
+            isCustom: true
+        };
+        setCategories(prev => [...prev, newCategory]);
+    };
+
+    const deleteCategory = (id: string) => {
+        
+        if (id === 'core') return; 
+        setCategories(prev => prev.filter(c => c.id !== id));
+        
+        if (activeCategoryId === id) {
+            setActiveCategoryId(null);
+        }
+    };
+
     return (
         <AACContext.Provider value={{
             user, activeTab, setActiveTab,
-            categories, activeCategoryId, navigateToCategory, goBack,
+            categories, addCategory, deleteCategory, activeCategoryId, navigateToCategory, goBack,
             sentence, addToSentence, removeFromSentence, clearSentence,
             settings, speak
         }}>
