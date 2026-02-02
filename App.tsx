@@ -5,7 +5,7 @@ import { AACProvider, useAAC } from './src/context/AACContext';
 import Header from './src/components/Header';
 import Sidebar from './src/components/Sidebar';
 import SymbolGrid from './src/components/SymbolGrid';
-import CategoryManager from './src/components/CategoryManager';
+import CategoryManager from './src/components/category/CategoryManager';
 
 // Componente interno do Layout
 function MainLayout() {

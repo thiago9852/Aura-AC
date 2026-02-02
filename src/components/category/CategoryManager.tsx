@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useAAC } from '../context/AACContext';
-import CreateCategoryModal from './creates/CreateCategoryModal';
-import { Category } from '../types';
+import { useAAC } from '../../context/AACContext';
+import CreateCategoryModal from './CreateCategoryModal';
+import { Category } from '../../types';
 
 import { 
     FolderCog, Plus, Trash2, Pencil, LayoutGrid,

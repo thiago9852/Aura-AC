@@ -98,16 +98,16 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     const updateCategory = (id: string, data: Partial<Category>) => {
-        setCategories(prev => prev.map(cat => 
+        setCategories(prev => prev.map(cat =>
             cat.id === id ? { ...cat, ...data } : cat
         ));
     };
 
     const deleteCategory = (id: string) => {
-        
-        if (id === 'core') return; 
+
+        if (id === 'core') return;
         setCategories(prev => prev.filter(c => c.id !== id));
-        
+
         if (activeCategoryId === id) {
             setActiveCategoryId(null);
         }

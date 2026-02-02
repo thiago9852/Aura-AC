@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { useAAC } from '../context/AACContext';
 import SymbolCard from './SymbolCard';
-import CreateSymbolModal from './creates/CreateSymbolModal'; 
+import CreateSymbolModal from './category/CreateSymbolModal'; 
 
 import { 
     ArrowLeft, MessageCircle, Heart, Star, LayoutGrid, Check, X, Hand, 
