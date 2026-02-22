@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import * as Icons from 'lucide-react-native';
-import { SymbolItem } from '../types';
+import { SymbolItem } from '../../types';
 
 interface Props {
   item: SymbolItem;
@@ -10,12 +10,12 @@ interface Props {
 
 // Paleta Fitzgerald = Cor da borda
 const FITZGERALD_COLORS: any = {
-    yellow: { border: '#eab308', text: '#854d0e' },
-    green:  { border: '#22c55e', text: '#15803d' },
-    blue:   { border: '#3b82f6', text: '#1e40af' },
-    red:    { border: '#ef4444', text: '#991b1b' },
-    purple: { border: '#a855f7', text: '#6b21a8' },
-    white:  { border: '#cbd5e1', text: '#334155' },
+  yellow: { border: '#eab308', text: '#854d0e' },
+  green: { border: '#22c55e', text: '#15803d' },
+  blue: { border: '#3b82f6', text: '#1e40af' },
+  red: { border: '#ef4444', text: '#991b1b' },
+  purple: { border: '#a855f7', text: '#6b21a8' },
+  white: { border: '#cbd5e1', text: '#334155' },
 };
 
 export default function SymbolCard({ item, onPress }: Props) {
@@ -23,13 +23,13 @@ export default function SymbolCard({ item, onPress }: Props) {
 
   const colorKey = item.colorCode || 'white';
   const theme = FITZGERALD_COLORS[colorKey] || FITZGERALD_COLORS.white;
-  
+
   return (
-    <TouchableOpacity style={[styles.card, { 
-      borderColor: theme.border, 
+    <TouchableOpacity style={[styles.card, {
+      borderColor: theme.border,
       backgroundColor: theme.bg,
       borderLeftWidth: 6,
-      }]} onPress={onPress}>
+    }]} onPress={onPress}>
       {Icon && <Icon size={32} color={theme.border} />}
       <Text style={[styles.label, { color: theme.text }]}>{item.label}</Text>
     </TouchableOpacity>

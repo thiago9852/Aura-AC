@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Home, Star, Calendar, FolderCog } from 'lucide-react-native';
-import { useAAC } from '../context/AACContext';
-import { NavigationTab } from '../types';
+import { useAAC } from '../../context/AACContext';
+import { NavigationTab } from '../../types';
 
 export default function Sidebar() {
   const { activeTab, setActiveTab } = useAAC();
