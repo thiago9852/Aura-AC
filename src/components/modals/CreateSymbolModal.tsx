@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useAAC } from '../../context/AACContext';
+import { SymbolItem } from '../../types';
 
-import { 
-    X, Star, Heart, Smile, Frown, Coffee, Utensils, Apple, Car, Bus, 
-    Bike, Plane, Home, Building, School, Book, Pencil, Monitor, Phone, 
-    Music, Gamepad, Tv, Shirt, Clock, Sun, Moon, Cloud, Umbrella, Zap, 
+import {
+    X, Star, Heart, Smile, Frown, Coffee, Utensils, Apple, Car, Bus,
+    Bike, Plane, Home, Building, School, Book, Pencil, Monitor, Phone,
+    Music, Gamepad, Tv, Shirt, Clock, Sun, Moon, Cloud, Umbrella, Zap,
     AlertTriangle, Check, HelpCircle, Info, User, Users, Image as ImageIcon
 } from 'lucide-react-native';
 
 // Mapeamento dos Ícones para seleção
 const AVAILABLE_ICONS = [
-  { name: 'Star', Icon: Star }, { name: 'Heart', Icon: Heart }, { name: 'Smile', Icon: Smile },
-  { name: 'Frown', Icon: Frown }, { name: 'Coffee', Icon: Coffee }, { name: 'Utensils', Icon: Utensils },
-  { name: 'Apple', Icon: Apple }, { name: 'Car', Icon: Car }, { name: 'Bus', Icon: Bus },
-  { name: 'Bike', Icon: Bike }, { name: 'Plane', Icon: Plane }, { name: 'Home', Icon: Home },
-  { name: 'School', Icon: School }, { name: 'Book', Icon: Book }, { name: 'Pencil', Icon: Pencil },
-  { name: 'Phone', Icon: Phone }, { name: 'Music', Icon: Music }, { name: 'Gamepad', Icon: Gamepad },
-  { name: 'Tv', Icon: Tv }, { name: 'Clock', Icon: Clock }, { name: 'Sun', Icon: Sun },
-  { name: 'Moon', Icon: Moon }, { name: 'Cloud', Icon: Cloud }, { name: 'Zap', Icon: Zap },
-  { name: 'Check', Icon: Check }, { name: 'X', Icon: X }, { name: 'User', Icon: User }
+    { name: 'Star', Icon: Star }, { name: 'Heart', Icon: Heart }, { name: 'Smile', Icon: Smile },
+    { name: 'Frown', Icon: Frown }, { name: 'Coffee', Icon: Coffee }, { name: 'Utensils', Icon: Utensils },
+    { name: 'Apple', Icon: Apple }, { name: 'Car', Icon: Car }, { name: 'Bus', Icon: Bus },
+    { name: 'Bike', Icon: Bike }, { name: 'Plane', Icon: Plane }, { name: 'Home', Icon: Home },
+    { name: 'School', Icon: School }, { name: 'Book', Icon: Book }, { name: 'Pencil', Icon: Pencil },
+    { name: 'Phone', Icon: Phone }, { name: 'Music', Icon: Music }, { name: 'Gamepad', Icon: Gamepad },
+    { name: 'Tv', Icon: Tv }, { name: 'Clock', Icon: Clock }, { name: 'Sun', Icon: Sun },
+    { name: 'Moon', Icon: Moon }, { name: 'Cloud', Icon: Cloud }, { name: 'Zap', Icon: Zap },
+    { name: 'Check', Icon: Check }, { name: 'X', Icon: X }, { name: 'User', Icon: User }
 ];
 
 // Cores Fitzgerald
@@ -36,34 +37,53 @@ interface Props {
     visible: boolean;
     onClose: () => void;
     categoryId: string;
+    initialData?: SymbolItem | null;
 }
 
 type Mode = 'icon' | 'image' | 'text';
 
-export default function CreateSymbolModal({ visible, onClose, categoryId }: Props) {
-    const { addSymbolToCategory } = useAAC();
-    
+export default function CreateSymbolModal({ visible, onClose, categoryId, initialData }: Props) {
+    const { addSymbolToCategory, updateSymbolInCategory } = useAAC();
+
     // Estados
     const [label, setLabel] = useState('');
     const [mode, setMode] = useState<Mode>('icon');
     const [selectedIcon, setSelectedIcon] = useState('Star');
     const [selectedColorCode, setSelectedColorCode] = useState('white');
 
+    React.useEffect(() => {
+        if (visible && initialData) {
+            setLabel(initialData.label);
+            setSelectedColorCode(initialData.colorCode || 'white');
+            if (initialData.iconName) {
+                setMode('icon');
+                setSelectedIcon(initialData.iconName);
+            } else {
+                setMode('text');
+            }
+        } else if (!visible) {
+            setLabel('');
+            setSelectedIcon('Star');
+            setSelectedColorCode('white');
+            setMode('icon');
+        }
+    }, [visible, initialData]);
+
     const handleSave = () => {
         if (!label.trim()) return;
 
-        addSymbolToCategory(categoryId, {
+        const payload = {
             label: label,
             iconName: mode === 'icon' ? selectedIcon : undefined,
-            // imagem:
             colorCode: selectedColorCode
-        });
+        };
 
-        // Limpa e fecha
-        setLabel('');
-        setSelectedIcon('Star');
-        setSelectedColorCode('white');
-        setMode('icon');
+        if (initialData) {
+            updateSymbolInCategory(categoryId, initialData.id, payload);
+        } else {
+            addSymbolToCategory(categoryId, payload);
+        }
+
         onClose();
     };
 
@@ -80,9 +100,9 @@ export default function CreateSymbolModal({ visible, onClose, categoryId }: Prop
                     <ScrollView contentContainerStyle={styles.scrollContent}>
                         {/* Input de Texto */}
                         <Text style={styles.label}>Texto do Cartão</Text>
-                        <TextInput 
-                            style={styles.input} 
-                            placeholder="Ex: Água, Banheiro..." 
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Ex: Água, Banheiro..."
                             value={label}
                             onChangeText={setLabel}
                         />
@@ -90,20 +110,20 @@ export default function CreateSymbolModal({ visible, onClose, categoryId }: Prop
                         {/* Abas de Tipo */}
                         <Text style={styles.label}>Tipo de Cartão</Text>
                         <View style={styles.tabs}>
-                            <TouchableOpacity 
-                                style={[styles.tab, mode === 'icon' && styles.activeTab]} 
+                            <TouchableOpacity
+                                style={[styles.tab, mode === 'icon' && styles.activeTab]}
                                 onPress={() => setMode('icon')}
                             >
                                 <Text style={[styles.tabText, mode === 'icon' && styles.activeTabText]}>Ícone</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={[styles.tab, mode === 'image' && styles.activeTab]} 
+                            <TouchableOpacity
+                                style={[styles.tab, mode === 'image' && styles.activeTab]}
                                 onPress={() => setMode('image')}
                             >
                                 <Text style={[styles.tabText, mode === 'image' && styles.activeTabText]}>Foto</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={[styles.tab, mode === 'text' && styles.activeTab]} 
+                            <TouchableOpacity
+                                style={[styles.tab, mode === 'text' && styles.activeTab]}
                                 onPress={() => setMode('text')}
                             >
                                 <Text style={[styles.tabText, mode === 'text' && styles.activeTabText]}>Texto</Text>
@@ -115,14 +135,14 @@ export default function CreateSymbolModal({ visible, onClose, categoryId }: Prop
                             <View>
                                 <Text style={styles.label}>Escolha um Ícone</Text>
                                 <View style={styles.iconsContainerBorder}>
-                                    <ScrollView 
+                                    <ScrollView
                                         nestedScrollEnabled={true}
-                                        style={{maxHeight: 220 }}
+                                        style={{ maxHeight: 220 }}
                                     >
                                         <View style={styles.grid}>
                                             {AVAILABLE_ICONS.map(({ name: iconName, Icon }) => (
-                                                <TouchableOpacity 
-                                                    key={iconName} 
+                                                <TouchableOpacity
+                                                    key={iconName}
                                                     style={[styles.iconBtn, selectedIcon === iconName && styles.selected]}
                                                     onPress={() => setSelectedIcon(iconName)}
                                                 >
@@ -146,11 +166,11 @@ export default function CreateSymbolModal({ visible, onClose, categoryId }: Prop
                         <Text style={styles.label}>Cor da Borda (Fitzgerald)</Text>
                         <View style={styles.colorRow}>
                             {COLORS.map(c => (
-                                <TouchableOpacity 
-                                    key={c.code} 
+                                <TouchableOpacity
+                                    key={c.code}
                                     style={[
-                                        styles.colorBtn, 
-                                        { backgroundColor: c.hex }, 
+                                        styles.colorBtn,
+                                        { backgroundColor: c.hex },
                                         selectedColorCode === c.code && styles.selectedColor
                                     ]}
                                     onPress={() => setSelectedColorCode(c.code)}

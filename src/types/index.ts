@@ -33,6 +33,8 @@ export interface UserSettings {
     speakingRate: number; // 0.5 até 2
     darkMode: boolean;
     showTextOnly: boolean;
+    doubleClickToSpeak?: boolean;
+    speakOnlyOnPlay?: boolean;
 }
 
 export interface User {
