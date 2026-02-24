@@ -33,15 +33,15 @@ export interface UserSettings {
     speakingRate: number; // 0.5 até 2
     darkMode: boolean;
     showTextOnly: boolean;
+    doubleClickToSpeak?: boolean;
+    speakOnlyOnPlay?: boolean;
 }
 
 export interface User {
+    id: string;
     name: string;
-    age: number;
     email: string;
-    avatar?: string;
-    settings: UserSettings;
-    agendaItems: AgendaItem[];
+    provider: 'google' | 'apple';
 }
 
 export type SymbolOrPhrase = SymbolItem & { tempId: string };
