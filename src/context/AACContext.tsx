@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import * as Speech from 'expo-speech';
 import { UserSettings, Category, SymbolOrPhrase, SymbolItem, NavigationTab } from '../types';
 import { INITIAL_CATEGORIES } from '../data/vocab';
@@ -8,9 +7,11 @@ const DEFAULT_SETTINGS: UserSettings = {
     highContrast: false,
     voiceId: null,
     gridSize: 'medium',
-    darkMode: false,
     speakingRate: 1.0,
+    darkMode: false,
     showTextOnly: false,
+    doubleClickToSpeak: false,
+    speakOnlyOnPlay: false
 };
 
 interface AACContextType {
@@ -18,63 +19,55 @@ interface AACContextType {
     setActiveTab: (tab: NavigationTab) => void;
     categories: Category[];
     activeCategoryId: string | null;
-    navigateToCategory: (id: string) => void;
+    navigateToCategory: (id: string | null) => void;
     goBack: () => void;
     sentence: SymbolOrPhrase[];
     addToSentence: (item: SymbolItem) => void;
+    removeFromSentence: (tempId: string) => void;
     clearSentence: () => void;
-    speak: (text: string) => void;
     settings: UserSettings;
+    speak: (text: string) => void;
 }
 
 const AACContext = createContext<AACContextType | undefined>(undefined);
 
-export const AACProvider = ({ children }: { children: ReactNode }) => {
+export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [activeTab, setActiveTab] = useState<NavigationTab>('home');
-    const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
+    const [categories] = useState<Category[]>(INITIAL_CATEGORIES);
     const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
     const [sentence, setSentence] = useState<SymbolOrPhrase[]>([]);
-    const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
+    const [settings] = useState<UserSettings>(DEFAULT_SETTINGS);
 
-    // Carregar categorias personalizadas
-    useEffect(() => {
-        const loadData = async () => {
-            const savedCats = await AsyncStorage.getItem('@aura_categories');
-            if (savedCats) setCategories(JSON.parse(savedCats));
-        };
-        loadData();
-    }, []);
+    const navigateToCategory = (id: string | null) => setActiveCategoryId(id);
+    const goBack = () => setActiveCategoryId(null);
 
-    // Converte texto em voz (TTS)
     const speak = (text: string) => {
-        if (!text) return;
         Speech.speak(text, {
-            language: 'pt-BR',
+            voice: settings.voiceId || undefined,
             rate: settings.speakingRate,
-            voice: settings.voiceId || undefined
         });
     };
 
-    // Gerencia a navegação interna da Home
-    const navigateToCategory = (id: string) => setActiveCategoryId(id);
-
-    // Retorna à visualização principal da Home
-    const goBack = () => setActiveCategoryId(null);
-
-    // Adiciona um símbolo à barra de construção de frases e aciona a fala do item selecionado.
     const addToSentence = (item: SymbolItem) => {
-        setSentence((prev: any) => [...prev, { ...item, tempId: `${item.id}_${Date.now()}` }]);
-        speak(item.speechText || item.label);
+        const newItem = { ...item, tempId: `phrase_${Date.now()}_${Math.random()}` };
+        setSentence(prev => [...prev, newItem]);
+        
+        // No futuro, isso respeitará a config 'speakOnlyOnPlay'
+        if (!settings.speakOnlyOnPlay) {
+            speak(item.speechText || item.label);
+        }
     };
 
-    // Remove todos os itens da barra de sentença atual.
+    const removeFromSentence = (tempId: string) => 
+        setSentence(prev => prev.filter(i => i.tempId !== tempId));
+
     const clearSentence = () => setSentence([]);
 
     return (
         <AACContext.Provider value={{
             activeTab, setActiveTab,
             categories, activeCategoryId, navigateToCategory, goBack,
-            sentence, addToSentence, clearSentence,
+            sentence, addToSentence, removeFromSentence, clearSentence,
             settings, speak
         }}>
             {children}
