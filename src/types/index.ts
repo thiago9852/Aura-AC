@@ -1,3 +1,5 @@
+// src/types/index.ts
+
 export interface SymbolItem {
     id: string;
     label: string;
@@ -31,19 +33,16 @@ export interface UserSettings {
     voiceId: string | null;
     gridSize: 'small' | 'medium' | 'large';
     speakingRate: number; // 0.5 até 2
-    darkMode: boolean;
-    showTextOnly: boolean;
-    doubleClickToSpeak?: boolean;
-    speakOnlyOnPlay?: boolean;
 }
 
 export interface User {
-    id: string;
     name: string;
+    age: number;
     email: string;
-    provider: 'google' | 'apple';
+    avatar?: string;
+    settings: UserSettings;
+    agendaItems: AgendaItem[];
 }
 
 export type SymbolOrPhrase = SymbolItem & { tempId: string };
-
 export type NavigationTab = 'home' | 'favorites' | 'agenda' | 'profile' | 'manage';
