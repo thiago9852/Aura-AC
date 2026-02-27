@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+// src/context/AACContext.tsx
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import * as Speech from 'expo-speech';
-import { UserSettings, Category, SymbolOrPhrase, SymbolItem, NavigationTab } from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Category, SymbolOrPhrase, SymbolItem, NavigationTab, UserSettings } from '../types';
 import { INITIAL_CATEGORIES } from '../data/vocab';
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -8,23 +10,26 @@ const DEFAULT_SETTINGS: UserSettings = {
     voiceId: null,
     gridSize: 'medium',
     speakingRate: 1.0,
-    darkMode: false,
-    showTextOnly: false,
-    doubleClickToSpeak: false,
-    speakOnlyOnPlay: false
 };
 
 interface AACContextType {
     activeTab: NavigationTab;
     setActiveTab: (tab: NavigationTab) => void;
+    
     categories: Category[];
+    addCategory: (data: Omit<Category, 'id' | 'items'>) => void;
+    updateCategory: (id: string, data: Partial<Category>) => void;
+    deleteCategory: (id: string) => void;
+    
     activeCategoryId: string | null;
-    navigateToCategory: (id: string | null) => void;
+    navigateToCategory: (id: string) => void;
     goBack: () => void;
+    
     sentence: SymbolOrPhrase[];
     addToSentence: (item: SymbolItem) => void;
     removeFromSentence: (tempId: string) => void;
     clearSentence: () => void;
+    
     settings: UserSettings;
     speak: (text: string) => void;
 }
@@ -33,40 +38,77 @@ const AACContext = createContext<AACContextType | undefined>(undefined);
 
 export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [activeTab, setActiveTab] = useState<NavigationTab>('home');
-    const [categories] = useState<Category[]>(INITIAL_CATEGORIES);
+    const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
     const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
     const [sentence, setSentence] = useState<SymbolOrPhrase[]>([]);
-    const [settings] = useState<UserSettings>(DEFAULT_SETTINGS);
+    const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
 
-    const navigateToCategory = (id: string | null) => setActiveCategoryId(id);
+    useEffect(() => {
+        const load = async () => {
+            const savedCats = await AsyncStorage.getItem('aac_categories');
+            if (savedCats) {
+                const parsed: Category[] = JSON.parse(savedCats);
+                const mergedCategories = INITIAL_CATEGORIES.map(initialCat => {
+                    const savedCat = parsed.find(c => c.id === initialCat.id);
+                    return savedCat ? savedCat : initialCat;
+                });
+                const customCategories = parsed.filter(c => c.isCustom);
+                setCategories([...customCategories, ...mergedCategories]);
+            } else {
+                setCategories(INITIAL_CATEGORIES);
+            }
+        };
+        load();
+    }, []);
+
+    const saveCategories = async (cats: Category[]) => {
+        setCategories(cats);
+        await AsyncStorage.setItem('aac_categories', JSON.stringify(cats));
+    };
+
+    const addCategory = (categoryData: Omit<Category, 'id' | 'items'>) => {
+        const newCategory: Category = {
+            id: `custom_${Date.now()}`,
+            items: [],
+            ...categoryData,
+            isCustom: true
+        };
+        saveCategories([newCategory, ...categories]);
+    };
+
+    const updateCategory = (id: string, data: Partial<Category>) => {
+        const updated = categories.map(cat => cat.id === id ? { ...cat, ...data } : cat);
+        saveCategories(updated);
+    };
+
+    const deleteCategory = (id: string) => {
+        const updated = categories.filter(c => c.id !== id);
+        saveCategories(updated);
+        if (activeCategoryId === id) goBack();
+    };
+
+    const navigateToCategory = (id: string) => setActiveCategoryId(id);
     const goBack = () => setActiveCategoryId(null);
 
-    const speak = (text: string) => {
-        Speech.speak(text, {
-            voice: settings.voiceId || undefined,
-            rate: settings.speakingRate,
-        });
-    };
-
     const addToSentence = (item: SymbolItem) => {
-        const newItem = { ...item, tempId: `phrase_${Date.now()}_${Math.random()}` };
-        setSentence(prev => [...prev, newItem]);
-        
-        // No futuro, isso respeitará a config 'speakOnlyOnPlay'
-        if (!settings.speakOnlyOnPlay) {
-            speak(item.speechText || item.label);
-        }
+        setSentence(prev => [...prev, { ...item, tempId: Date.now().toString() + Math.random() }]);
     };
 
-    const removeFromSentence = (tempId: string) => 
+    const removeFromSentence = (tempId: string) => {
         setSentence(prev => prev.filter(i => i.tempId !== tempId));
+    };
 
     const clearSentence = () => setSentence([]);
+
+    const speak = (text: string) => {
+        Speech.speak(text, { language: 'pt-BR', rate: settings.speakingRate });
+    };
 
     return (
         <AACContext.Provider value={{
             activeTab, setActiveTab,
-            categories, activeCategoryId, navigateToCategory, goBack,
+            categories, addCategory, updateCategory, deleteCategory,
+            activeCategoryId, navigateToCategory, goBack,
             sentence, addToSentence, removeFromSentence, clearSentence,
             settings, speak
         }}>
@@ -77,6 +119,6 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 export const useAAC = () => {
     const context = useContext(AACContext);
-    if (!context) throw new Error('useAAC must be used within AACProvider');
+    if (!context) throw new Error('useAAC must be used within an AACProvider');
     return context;
 };

@@ -1,5 +1,6 @@
+// src/components/modals/CreateCategoryModal.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Modal, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { X, MessageCircle, Heart, Star, Smile, Utensils, Home, Gamepad, Music, Sun } from 'lucide-react-native';
 import { useAAC } from '../../context/AACContext';
 import { Category } from '../../types';
@@ -34,12 +35,10 @@ export default function CreateCategoryModal({ visible, onClose, editingCategory 
     useEffect(() => {
         if (visible) {
             if (editingCategory) {
-                // Modo Edição
                 setName(editingCategory.name);
                 setSelectedIcon(editingCategory.icon);
                 setSelectedColor(editingCategory.color);
             } else {
-                // Modo Criação
                 setName('');
                 setSelectedIcon('MessageCircle');
                 setSelectedColor('#3b82f6');
@@ -51,19 +50,9 @@ export default function CreateCategoryModal({ visible, onClose, editingCategory 
         if (!name.trim()) return;
 
         if (editingCategory) {
-            // Lógica de ATUALIZAR
-            updateCategory(editingCategory.id, {
-                name,
-                icon: selectedIcon,
-                color: selectedColor
-            });
+            updateCategory(editingCategory.id, { name, icon: selectedIcon, color: selectedColor });
         } else {
-            // Lógica de CRIAR
-            addCategory({
-                name,
-                icon: selectedIcon,
-                color: selectedColor
-            });
+            addCategory({ name, icon: selectedIcon, color: selectedColor });
         }
         
         onClose();
@@ -74,7 +63,6 @@ export default function CreateCategoryModal({ visible, onClose, editingCategory 
             <View style={styles.overlay}>
                 <View style={styles.modal}>
                     <View style={styles.header}>
-                        {/* Título Dinâmico */}
                         <Text style={styles.title}>
                             {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
                         </Text>
