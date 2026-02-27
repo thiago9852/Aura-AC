@@ -24,6 +24,10 @@ interface AACContextType {
     activeCategoryId: string | null;
     navigateToCategory: (id: string) => void;
     goBack: () => void;
+
+    // Novas funções para símbolos
+    addSymbolToCategory: (categoryId: string, item: Omit<SymbolItem, 'id'>) => void;
+    updateSymbolInCategory: (categoryId: string, symbolId: string, item: Partial<SymbolItem>) => void;
     
     sentence: SymbolOrPhrase[];
     addToSentence: (item: SymbolItem) => void;
@@ -67,24 +71,37 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     const addCategory = (categoryData: Omit<Category, 'id' | 'items'>) => {
-        const newCategory: Category = {
-            id: `custom_${Date.now()}`,
-            items: [],
-            ...categoryData,
-            isCustom: true
-        };
+        const newCategory: Category = { id: `custom_${Date.now()}`, items: [], ...categoryData, isCustom: true };
         saveCategories([newCategory, ...categories]);
     };
 
     const updateCategory = (id: string, data: Partial<Category>) => {
-        const updated = categories.map(cat => cat.id === id ? { ...cat, ...data } : cat);
-        saveCategories(updated);
+        saveCategories(categories.map(cat => cat.id === id ? { ...cat, ...data } : cat));
     };
 
     const deleteCategory = (id: string) => {
-        const updated = categories.filter(c => c.id !== id);
-        saveCategories(updated);
+        saveCategories(categories.filter(c => c.id !== id));
         if (activeCategoryId === id) goBack();
+    };
+
+    // Novas funções de símbolos
+    const addSymbolToCategory = (categoryId: string, item: Omit<SymbolItem, 'id'>) => {
+        const updated = categories.map(cat => {
+            if (cat.id !== categoryId) return cat;
+            return { ...cat, items: [...cat.items, { id: `sym_${Date.now()}`, ...item }] };
+        });
+        saveCategories(updated);
+    };
+
+    const updateSymbolInCategory = (categoryId: string, symbolId: string, itemData: Partial<SymbolItem>) => {
+        const updated = categories.map(cat => {
+            if (cat.id !== categoryId) return cat;
+            return {
+                ...cat,
+                items: cat.items.map(sym => sym.id === symbolId ? { ...sym, ...itemData } : sym)
+            };
+        });
+        saveCategories(updated);
     };
 
     const navigateToCategory = (id: string) => setActiveCategoryId(id);
@@ -109,6 +126,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             activeTab, setActiveTab,
             categories, addCategory, updateCategory, deleteCategory,
             activeCategoryId, navigateToCategory, goBack,
+            addSymbolToCategory, updateSymbolInCategory,
             sentence, addToSentence, removeFromSentence, clearSentence,
             settings, speak
         }}>

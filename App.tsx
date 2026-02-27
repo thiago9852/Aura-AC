@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, SafeAreaView, Text } from 'react-native';
 import { AACProvider, useAAC } from './src/context/AACContext';
-import Sidebar from './src/components/ui/Sidebar'; // Ou de onde sua sidebar venha
+import Sidebar from './src/components/ui/Sidebar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Telas Importadas

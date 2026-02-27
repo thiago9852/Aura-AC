@@ -1,14 +1,18 @@
 // src/screens/HomeScreen.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useAAC } from '../context/AACContext';
 import SymbolCard from '../components/ui/SymbolCard';
+import CreateSymbolModal from '../components/modals/CreateSymbolModal';
 import * as Icons from 'lucide-react-native';
 
-const { ArrowLeft, MessageCircle, Star, LayoutGrid, Folder } = Icons;
+const { ArrowLeft, MessageCircle, Star, LayoutGrid, Folder, Plus } = Icons;
 
 export default function HomeScreen() {
   const { categories, addToSentence, activeTab, speak, activeCategoryId, goBack, navigateToCategory } = useAAC();
+  
+  // Estado do Modal
+  const [showAddModal, setShowAddModal] = useState(false);
 
   if (activeTab !== 'home') return null;
 
@@ -39,8 +43,25 @@ export default function HomeScreen() {
             {category.items.map((item) => (
               <SymbolCard key={item.id} item={item} onPress={() => handlePressSymbol(item)} />
             ))}
+
+            {/* Botão Adicionar Novo Símbolo */}
+            <TouchableOpacity 
+              style={[styles.addCard, { width: '31%', aspectRatio: 1 }]} 
+              onPress={() => setShowAddModal(true)}
+              activeOpacity={0.7}
+            >
+              <Plus size={32} color="#94a3b8" />
+              <Text style={styles.addText}>Novo</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
+
+        {/* Modal de Criar Símbolo */}
+        <CreateSymbolModal
+            visible={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            categoryId={activeCategoryId}
+        />
       </View>
     );
   }
@@ -157,4 +178,17 @@ const styles = StyleSheet.create({
 
   emptyState: { alignItems: 'center', justifyContent: 'center', marginTop: 60 },
   emptyText: { textAlign: 'center', color: '#64748b', marginTop: 16, fontSize: 18, fontWeight: '600' },
+
+  // Estilo do Botão Adicionar Símbolo
+  addCard: {
+    backgroundColor: '#f1f5f9',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#cbd5e1',
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12
+  },
+  addText: { color: '#64748b', fontWeight: '700', marginTop: 8, fontSize: 13 }
 });
