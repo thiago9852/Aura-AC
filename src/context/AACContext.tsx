@@ -29,6 +29,10 @@ interface AACContextType {
     updateSymbolInCategory: (categoryId: string, symbolId: string, item: Partial<SymbolItem>) => void;
     deleteSymbolFromCategory: (categoryId: string, symbolId: string) => void;
     
+    favorites: SymbolItem[];
+    addFavorite: (item: SymbolItem) => void;
+    removeFavorite: (id: string) => void;
+    
     sentence: SymbolOrPhrase[];
     addToSentence: (item: SymbolItem) => void;
     removeFromSentence: (tempId: string) => void;
@@ -46,6 +50,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
     const [sentence, setSentence] = useState<SymbolOrPhrase[]>([]);
     const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
+    const [favorites, setFavorites] = useState<SymbolItem[]>([]);
 
     useEffect(() => {
         const load = async () => {
@@ -61,6 +66,9 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             } else {
                 setCategories(INITIAL_CATEGORIES);
             }
+
+            const savedFavs = await AsyncStorage.getItem('aac_favorites');
+            if (savedFavs) setFavorites(JSON.parse(savedFavs));
         };
         load();
     }, []);
@@ -101,6 +109,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             };
         });
         saveCategories(updated);
+        setFavorites(prev => prev.map(f => f.id === symbolId ? { ...f, ...itemData } : f));
     };
 
     // Função de deletar símbolo
@@ -110,7 +119,24 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             return { ...cat, items: cat.items.filter(sym => sym.id !== symbolId) };
         });
         saveCategories(updated);
+        removeFavorite(symbolId);
     }
+
+        // Funções de Favoritos
+    const saveFavorites = async (favs: SymbolItem[]) => {
+        setFavorites(favs);
+        await AsyncStorage.setItem('aac_favorites', JSON.stringify(favs));
+    };
+
+    const addFavorite = (item: SymbolItem) => {
+        if (!favorites.find(f => f.id === item.id)) {
+            saveFavorites([...favorites, item]);
+        }
+    };
+
+    const removeFavorite = (id: string) => {
+        saveFavorites(favorites.filter(f => f.id !== id));
+    };
 
     const navigateToCategory = (id: string) => setActiveCategoryId(id);
     const goBack = () => setActiveCategoryId(null);
@@ -135,6 +161,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             categories, addCategory, updateCategory, deleteCategory,
             activeCategoryId, navigateToCategory, goBack,
             addSymbolToCategory, updateSymbolInCategory, deleteSymbolFromCategory,
+            favorites, addFavorite, removeFavorite,
             sentence, addToSentence, removeFromSentence, clearSentence,
             settings, speak
         }}>

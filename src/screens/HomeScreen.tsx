@@ -11,25 +11,24 @@ import * as Icons from 'lucide-react-native';
 const { ArrowLeft, MessageCircle, Star, LayoutGrid, Folder, Plus } = Icons;
 
 export default function HomeScreen() {
-  const { categories, addToSentence, activeTab, speak, activeCategoryId, goBack, navigateToCategory } = useAAC();
+  const { categories, favorites, addToSentence, activeTab, speak, activeCategoryId, goBack, navigateToCategory } = useAAC();
   
-  // Estado Modal Criação/Edição
   const [showAddModal, setShowAddModal] = useState(false);
   const [editInitialData, setEditInitialData] = useState<SymbolItem | null>(null);
 
-  // Estado Modal Ações
   const [actionModalVisible, setActionModalVisible] = useState(false);
   const [selectedActionItem, setSelectedActionItem] = useState<SymbolItem | null>(null);
   const [selectedActionCategory, setSelectedActionCategory] = useState<string | null>(null);
 
-  if (activeTab !== 'home') return null;
+  // Home Screen & favorites
+  if (activeTab !== 'home' && activeTab !== 'favorites') return null;
 
   const handlePressSymbol = (item: any) => {
     speak(item.speechText || item.label);
     addToSentence(item);
   };
 
-  const handleLongPress = (item: SymbolItem, categoryId: string) => {
+  const handleLongPress = (item: SymbolItem, categoryId: string | null = null) => {
     setSelectedActionItem(item);
     setSelectedActionCategory(categoryId);
     setActionModalVisible(true);
@@ -44,6 +43,49 @@ export default function HomeScreen() {
     setShowAddModal(false);
     setEditInitialData(null);
   };
+
+  const renderModals = () => (
+    <>
+      <CreateSymbolModal visible={showAddModal} onClose={closeAddModal} categoryId={activeCategoryId || 'core'} initialData={editInitialData} />
+      <SymbolActionModal visible={actionModalVisible} onClose={() => setActionModalVisible(false)} item={selectedActionItem} categoryId={selectedActionCategory} onEdit={handleEdit} />
+    </>
+  );
+
+  // Visão da aba FAVORITOS
+  if (activeTab === 'favorites') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.categoryHeader}>
+          <View style={[styles.headerIconContainer, { backgroundColor: '#fef9c3' }]}>
+            <Star size={24} color="#eab308" fill="#eab308" />
+          </View>
+          <Text style={styles.title}>Meus Favoritos</Text>
+        </View>
+
+        {favorites.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Star size={48} color="#cbd5e1" />
+            <Text style={styles.emptyText}>Nenhum símbolo favoritado.</Text>
+            <Text style={styles.emptySubtext}>Pressione e segure um cartão em qualquer categoria para adicioná-lo aqui.</Text>
+          </View>
+        ) : (
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.flatListContent}>
+            <View style={styles.grid}>
+              {favorites.map((item) => (
+                <SymbolCard 
+                  key={item.id} 
+                  item={item} 
+                  onPress={() => handlePressSymbol(item)}
+                  onLongPress={() => handleLongPress(item, null)} 
+                />
+              ))}
+            </View>
+          </ScrollView>
+        )}
+        {renderModals()}
+      </View>
+    );
+  }
 
   // Visão de dentro de uma Categoria
   if (activeCategoryId) {
@@ -72,7 +114,6 @@ export default function HomeScreen() {
                 onLongPress={() => handleLongPress(item, activeCategoryId)} 
               />
             ))}
-
             <TouchableOpacity 
               style={[styles.addCard, { width: '31%', aspectRatio: 1 }]} 
               onPress={() => setShowAddModal(true)}
@@ -83,26 +124,12 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </ScrollView>
-
-        <CreateSymbolModal
-            visible={showAddModal}
-            onClose={closeAddModal}
-            categoryId={activeCategoryId}
-            initialData={editInitialData}
-        />
-        
-        <SymbolActionModal
-            visible={actionModalVisible}
-            onClose={() => setActionModalVisible(false)}
-            item={selectedActionItem}
-            categoryId={selectedActionCategory}
-            onEdit={handleEdit}
-        />
+        {renderModals()}
       </View>
     );
   }
 
-  // Visão Inicial
+  // Visão Inicial (Aba Home)
   const quickAccess = categories.find(c => c.id === 'core');
   const otherCategories = categories.filter(c => c.id !== 'core');
 
@@ -161,8 +188,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      <CreateSymbolModal visible={showAddModal} onClose={closeAddModal} categoryId={selectedActionCategory || 'core'} initialData={editInitialData} />
-      <SymbolActionModal visible={actionModalVisible} onClose={() => setActionModalVisible(false)} item={selectedActionItem} categoryId={selectedActionCategory} onEdit={handleEdit} />
+      {renderModals()}
     </ScrollView>
   );
 }
@@ -186,6 +212,7 @@ const styles = StyleSheet.create({
   catSubtext: { fontSize: 12, color: '#64748b', marginTop: 2, fontWeight: '500' },
   emptyState: { alignItems: 'center', justifyContent: 'center', marginTop: 60 },
   emptyText: { textAlign: 'center', color: '#64748b', marginTop: 16, fontSize: 18, fontWeight: '600' },
+  emptySubtext: { textAlign: 'center', color: '#94a3b8', marginTop: 8, fontSize: 14, paddingHorizontal: 20 },
   addCard: { backgroundColor: '#f1f5f9', borderRadius: 20, borderWidth: 2, borderColor: '#cbd5e1', borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   addText: { color: '#64748b', fontWeight: '700', marginTop: 8, fontSize: 13 }
 });

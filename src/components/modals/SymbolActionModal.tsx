@@ -1,7 +1,7 @@
 // src/components/modals/SymbolActionModal.tsx
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, Alert } from 'react-native';
-import { Edit3, Trash2, X } from 'lucide-react-native';
+import { Star, Edit3, Trash2, X } from 'lucide-react-native';
 import { SymbolItem } from '../../types';
 import { useAAC } from '../../context/AACContext';
 
@@ -14,9 +14,20 @@ interface Props {
 }
 
 export default function SymbolActionModal({ visible, onClose, item, categoryId, onEdit }: Props) {
-    const { deleteSymbolFromCategory } = useAAC();
+    const { deleteSymbolFromCategory, favorites, addFavorite, removeFavorite } = useAAC();
 
     if (!item) return null;
+
+    const isFavorite = favorites.some(f => f.id == item.id);
+
+    const handleToggleFavorite = () => {
+        if (isFavorite) {
+            removeFavorite(item.id);
+        } else {
+            addFavorite(item);
+        }
+        onClose();
+    }
 
     const handleEdit = () => {
         onClose();
@@ -62,6 +73,17 @@ export default function SymbolActionModal({ visible, onClose, item, categoryId, 
                     </View>
 
                     <View style={styles.optionsContainer}>
+                        {/* Botão de Favorito (Toggle) */}
+                        <TouchableOpacity style={styles.optionBtn} onPress={handleToggleFavorite}>
+                            <View style={[styles.iconBg, { backgroundColor: '#fef9c3' }]}>
+                                <Star size={24} color="#eab308" fill={isFavorite ? "#eab308" : "transparent"} />
+                            </View>
+                            <View style={styles.optionLabels}>
+                                <Text style={styles.optionTitle}>{isFavorite ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}</Text>
+                                <Text style={styles.optionDesc}>Acesso rápido pela aba de Estrela.</Text>
+                            </View>
+                        </TouchableOpacity>
+
                         {categoryId && (
                             <>
                                 <TouchableOpacity style={styles.optionBtn} onPress={handleEdit}>
