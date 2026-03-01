@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
 
     fab: {
         position: 'absolute',
-        bottom: 130, // Elevated above the sidebar
+        bottom: 130, // eleva o botão acima da sidebar
         right: 24,
         width: 64,
         height: 64,

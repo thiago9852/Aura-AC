@@ -94,7 +94,6 @@ export default function Sidebar() {
         { scaleX: scaleX.value },
         { scaleY: scaleY.value },
       ],
-      // Ao interagir, a bolha fica mais "etérea"
       opacity: interpolate(interactionFactor.value, [0, 1], [1, 0.6]),
     };
   });
@@ -130,13 +129,13 @@ export default function Sidebar() {
 
             <Animated.View style={[styles.bubble, { width: BUBBLE_WIDTH, height: BUBBLE_HEIGHT }, bubbleAnimatedStyle]}>
               <Animated.View style={[styles.bubbleInnerContainer, innerBubbleStyle]}>
-                {/* O BlurView permanece para dar a sensação de vidro distorcendo o fundo */}
+
                 <BlurView intensity={10} tint="light" style={StyleSheet.absoluteFill} />
 
-                {/* Um brilho especular que só aumenta na interação */}
                 <Animated.View style={[styles.topRefraction, {
                   opacity: interpolate(interactionFactor.value, [0, 1], [0.4, 0.8])
                 }]} />
+                
               </Animated.View>
             </Animated.View>
 

@@ -7,9 +7,10 @@ import { SymbolItem } from '../../types';
 interface Props {
   item: SymbolItem;
   onPress: () => void;
+  onLongPress?: () => void;
 }
 
-// Paleta Fitzgerald adaptada para cores premium
+// Paleta de cores Fitz
 const FITZGERALD_COLORS: any = {
   yellow: { bg: '#fef9c3', fg: '#ca8a04', shadow: '#eab308' },
   green: { bg: '#dcfce7', fg: '#16a34a', shadow: '#22c55e' },
@@ -19,7 +20,7 @@ const FITZGERALD_COLORS: any = {
   white: { bg: '#ffffff', fg: '#475569', shadow: '#94a3b8' },
 };
 
-export default function SymbolCard({ item, onPress }: Props) {
+export default function SymbolCard({ item, onPress, onLongPress }: Props) {
   const Icon = Icons[item.iconName as keyof typeof Icons] as any;
   const theme = FITZGERALD_COLORS[item.colorCode || 'white'] || FITZGERALD_COLORS.white;
 
@@ -27,7 +28,9 @@ export default function SymbolCard({ item, onPress }: Props) {
     <TouchableOpacity
       style={[styles.card, { backgroundColor: theme.bg, shadowColor: theme.shadow }]}
       onPress={onPress}
+      onLongPress={onLongPress}
       activeOpacity={0.7}
+      delayLongPress={350} 
     >
       <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.7)' }]}>
         {Icon && <Icon size={28} color={theme.fg} strokeWidth={2.5} />}
@@ -41,7 +44,7 @@ export default function SymbolCard({ item, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    width: '31%', // Base para 3 colunas
+    width: '31%',
     aspectRatio: 1,
     borderRadius: 20,
     padding: 8,
@@ -51,6 +54,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 10,
+    marginBottom: 12
   },
   iconContainer: {
     borderRadius: 20,

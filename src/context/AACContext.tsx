@@ -25,9 +25,9 @@ interface AACContextType {
     navigateToCategory: (id: string) => void;
     goBack: () => void;
 
-    // Novas funções para símbolos
     addSymbolToCategory: (categoryId: string, item: Omit<SymbolItem, 'id'>) => void;
     updateSymbolInCategory: (categoryId: string, symbolId: string, item: Partial<SymbolItem>) => void;
+    deleteSymbolFromCategory: (categoryId: string, symbolId: string) => void;
     
     sentence: SymbolOrPhrase[];
     addToSentence: (item: SymbolItem) => void;
@@ -84,7 +84,6 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (activeCategoryId === id) goBack();
     };
 
-    // Novas funções de símbolos
     const addSymbolToCategory = (categoryId: string, item: Omit<SymbolItem, 'id'>) => {
         const updated = categories.map(cat => {
             if (cat.id !== categoryId) return cat;
@@ -103,6 +102,15 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         });
         saveCategories(updated);
     };
+
+    // Função de deletar símbolo
+    const deleteSymbolFromCategory = (categoryId: string, symbolId: string) => {
+        const updated = categories.map(cat => {
+            if (cat.id !== categoryId) return cat;
+            return { ...cat, items: cat.items.filter(sym => sym.id !== symbolId) };
+        });
+        saveCategories(updated);
+    }
 
     const navigateToCategory = (id: string) => setActiveCategoryId(id);
     const goBack = () => setActiveCategoryId(null);
@@ -126,7 +134,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             activeTab, setActiveTab,
             categories, addCategory, updateCategory, deleteCategory,
             activeCategoryId, navigateToCategory, goBack,
-            addSymbolToCategory, updateSymbolInCategory,
+            addSymbolToCategory, updateSymbolInCategory, deleteSymbolFromCategory,
             sentence, addToSentence, removeFromSentence, clearSentence,
             settings, speak
         }}>

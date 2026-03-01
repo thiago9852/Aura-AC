@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import HomeScreen from './src/screens/HomeScreen';
 import CategoryManager from './src/screens/CategoryManager';
 
-// Componentes de Páginas Vazias (Placeholders)
+// Componentes de Páginas Vazias
 const FavoritesScreen = () => <Placeholder title="Favoritos" />;
 const AgendaScreen = () => <Placeholder title="Agenda" />;
 const ProfileScreen = () => <Placeholder title="Configurações" />;
@@ -23,13 +23,13 @@ const Placeholder = ({ title }: { title: string }) => (
 function AppContent() {
   const { activeTab } = useAAC();
 
-  // Switch principal de navegação baseado no activeTab do Context
+  // Switch principal de navegação
   const renderScreen = () => {
     switch (activeTab) {
       case 'home': return <HomeScreen />;
-      case 'favorites': return <HomeScreen />; // A Home depois vai gerenciar os favoritos nela mesma
+      case 'favorites': return <HomeScreen />;
       case 'agenda': return <AgendaScreen />;
-      case 'manage': return <CategoryManager />; // <-- Modificado aqui!
+      case 'manage': return <CategoryManager />;
       case 'profile': return <ProfileScreen />;
       default: return <HomeScreen />;
     }
