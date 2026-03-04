@@ -7,10 +7,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // Telas Importadas
 import HomeScreen from './src/screens/HomeScreen';
 import CategoryManager from './src/screens/CategoryManager';
+import AgendaScreen from './src/screens/AgendaScreen';
 
 // Componentes de Páginas Vazias
 const FavoritesScreen = () => <Placeholder title="Favoritos" />;
-const AgendaScreen = () => <Placeholder title="Agenda" />;
+// const AgendaScreen = () => <Placeholder title="Agenda" />;
 const ProfileScreen = () => <Placeholder title="Configurações" />;
 
 const Placeholder = ({ title }: { title: string }) => (

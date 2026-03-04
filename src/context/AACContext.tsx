@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import * as Speech from 'expo-speech';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Category, SymbolOrPhrase, SymbolItem, NavigationTab, UserSettings } from '../types';
+import { Category, SymbolOrPhrase, SymbolItem, NavigationTab, UserSettings, AgendaItem } from '../types';
 import { INITIAL_CATEGORIES } from '../data/vocab';
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -16,6 +16,7 @@ interface AACContextType {
     activeTab: NavigationTab;
     setActiveTab: (tab: NavigationTab) => void;
     
+    // Funções da Categoria
     categories: Category[];
     addCategory: (data: Omit<Category, 'id' | 'items'>) => void;
     updateCategory: (id: string, data: Partial<Category>) => void;
@@ -29,10 +30,18 @@ interface AACContextType {
     updateSymbolInCategory: (categoryId: string, symbolId: string, item: Partial<SymbolItem>) => void;
     deleteSymbolFromCategory: (categoryId: string, symbolId: string) => void;
     
+    // Funções de Favoritos
     favorites: SymbolItem[];
     addFavorite: (item: SymbolItem) => void;
     removeFavorite: (id: string) => void;
     
+    // Funções da Agenda
+    agendaItems: AgendaItem[];
+    addAgendaItem: (item: Omit<AgendaItem, 'id'>) => void;
+    updateAgendaItem: (id: string, item: Partial<AgendaItem>) => void;
+    deleteAgendaItem: (id: string) => void;
+    toggleAgendaItem: (id: string) => void;
+
     sentence: SymbolOrPhrase[];
     addToSentence: (item: SymbolItem) => void;
     removeFromSentence: (tempId: string) => void;
@@ -51,6 +60,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [sentence, setSentence] = useState<SymbolOrPhrase[]>([]);
     const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
     const [favorites, setFavorites] = useState<SymbolItem[]>([]);
+    const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
 
     useEffect(() => {
         const load = async () => {
@@ -69,15 +79,30 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
             const savedFavs = await AsyncStorage.getItem('aac_favorites');
             if (savedFavs) setFavorites(JSON.parse(savedFavs));
+
+            const savedAgenda = await AsyncStorage.getItem('aac_agenda');
+            if (savedAgenda) setAgendaItems(JSON.parse(savedAgenda));
         };
         load();
     }, []);
 
+    // Helpers e storage
     const saveCategories = async (cats: Category[]) => {
         setCategories(cats);
         await AsyncStorage.setItem('aac_categories', JSON.stringify(cats));
     };
 
+    const saveFavorites = async (favs: SymbolItem[]) => {
+        setFavorites(favs);
+        await AsyncStorage.setItem('aac_favorites', JSON.stringify(favs));
+    };
+
+    const saveAgendas = async (items: AgendaItem[]) => {
+        setAgendaItems(items);
+        await AsyncStorage.setItem('aac_agenda', JSON.stringify(items));
+    }
+
+    // CRUD Categoria
     const addCategory = (categoryData: Omit<Category, 'id' | 'items'>) => {
         const newCategory: Category = { id: `custom_${Date.now()}`, items: [], ...categoryData, isCustom: true };
         saveCategories([newCategory, ...categories]);
@@ -92,6 +117,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (activeCategoryId === id) goBack();
     };
 
+    // CRUD Símbolos
     const addSymbolToCategory = (categoryId: string, item: Omit<SymbolItem, 'id'>) => {
         const updated = categories.map(cat => {
             if (cat.id !== categoryId) return cat;
@@ -112,7 +138,6 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setFavorites(prev => prev.map(f => f.id === symbolId ? { ...f, ...itemData } : f));
     };
 
-    // Função de deletar símbolo
     const deleteSymbolFromCategory = (categoryId: string, symbolId: string) => {
         const updated = categories.map(cat => {
             if (cat.id !== categoryId) return cat;
@@ -122,12 +147,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         removeFavorite(symbolId);
     }
 
-        // Funções de Favoritos
-    const saveFavorites = async (favs: SymbolItem[]) => {
-        setFavorites(favs);
-        await AsyncStorage.setItem('aac_favorites', JSON.stringify(favs));
-    };
-
+    // CRUD Favoritos
     const addFavorite = (item: SymbolItem) => {
         if (!favorites.find(f => f.id === item.id)) {
             saveFavorites([...favorites, item]);
@@ -138,17 +158,33 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         saveFavorites(favorites.filter(f => f.id !== id));
     };
 
+    // CRUD Agenda
+    const addAgendaItem = (itemData: Omit<AgendaItem, 'id'>) => {
+        saveAgendas([...agendaItems, {id: `agenda_${Date.now()}`, ...itemData }])
+    }
+
+    const updateAgendaItem = (id: string, itemData: Partial<AgendaItem>) => {
+        saveAgendas(agendaItems.map(item => item.id === id ? {...item, ...itemData} : item ));
+    }
+
+    const deleteAgendaItem = (id: string) => {
+        saveAgendas(agendaItems.filter(item => item.id !== id));
+    };
+
+    const toggleAgendaItem = (id: string) => {
+        saveAgendas(agendaItems.map(item => item.id === id ? { ...item, completed: !item.completed } : item));
+    };
+
+    // Navegação e sentença
     const navigateToCategory = (id: string) => setActiveCategoryId(id);
     const goBack = () => setActiveCategoryId(null);
 
     const addToSentence = (item: SymbolItem) => {
         setSentence(prev => [...prev, { ...item, tempId: Date.now().toString() + Math.random() }]);
     };
-
     const removeFromSentence = (tempId: string) => {
         setSentence(prev => prev.filter(i => i.tempId !== tempId));
     };
-
     const clearSentence = () => setSentence([]);
 
     const speak = (text: string) => {
@@ -162,6 +198,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             activeCategoryId, navigateToCategory, goBack,
             addSymbolToCategory, updateSymbolInCategory, deleteSymbolFromCategory,
             favorites, addFavorite, removeFavorite,
+            agendaItems, addAgendaItem, deleteAgendaItem, toggleAgendaItem, updateAgendaItem,
             sentence, addToSentence, removeFromSentence, clearSentence,
             settings, speak
         }}>
