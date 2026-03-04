@@ -1,28 +1,9 @@
 // src/components/modals/CreateAgendaModal.tsx
 import React, { useState } from 'react';
-import { View, Text, Modal, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Modal, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAAC } from '../../context/AACContext';
-import { X, Clock, BookOpen, CalendarHeart, CheckSquare } from 'lucide-react-native';
-
-const getDates = () => {
-    const dates = [];
-    const today = new Date();
-    for (let i = 0; i <= 6; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        dates.push(date);
-    }
-    return dates;
-};
-
-const formatDayName = (date: Date) => {
-    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    return days[date.getDay()];
-};
-
-const isSameDay = (d1: Date, d2: Date) => {
-    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
-};
+import { X, Clock, BookOpen, CalendarHeart, CheckSquare, Calendar as CalendarIcon } from 'lucide-react-native';
 
 interface Props {
     visible: boolean;
@@ -31,18 +12,48 @@ interface Props {
 
 export default function CreateAgendaModal({ visible, onClose }: Props) {
     const { addAgendaItem } = useAAC();
+    
     const [title, setTitle] = useState('');
     const [type, setType] = useState<'event' | 'class' | 'task'>('task');
-    const [time, setTime] = useState('');
+    
+    // Estados de Data e Hora
     const [selectedDate, setSelectedDate] = useState(new Date());
-
-    const dates = React.useMemo(() => getDates(), []);
+    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [isTimeSet, setIsTimeSet] = useState(false);
+    
+    // Controles de visibilidade dos seletores
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showTimePicker, setShowTimePicker] = useState(false);
 
     const handleSave = () => {
         if (!title.trim()) return;
-        addAgendaItem({ title, type, time: time || undefined, date: selectedDate.toISOString() });
-        setTitle(''); setType('task'); setTime(''); setSelectedDate(new Date());
+        
+        let timeString = undefined;
+        if (isTimeSet) {
+            const hours = selectedTime.getHours().toString().padStart(2, '0');
+            const minutes = selectedTime.getMinutes().toString().padStart(2, '0');
+            timeString = `${hours}:${minutes}`;
+        }
+
+        addAgendaItem({ title, type, time: timeString, date: selectedDate.toISOString() });
+        
+        // Resetar estados e fechar
+        setTitle(''); 
+        setType('task'); 
+        setIsTimeSet(false);
+        setSelectedDate(new Date());
+        setSelectedTime(new Date());
         onClose();
+    };
+
+    const formatDate = (date: Date) => {
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
+    const formatTime = (date: Date) => {
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
     };
 
     return (
@@ -55,32 +66,82 @@ export default function CreateAgendaModal({ visible, onClose }: Props) {
                     </View>
 
                     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                        
                         <Text style={styles.label}>O que você vai fazer?</Text>
-                        <TextInput style={styles.input} placeholder="Ex: Terapia Ocupacional" value={title} onChangeText={setTitle} />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Ex: Aula de Inglês" 
+                            value={title} 
+                            onChangeText={setTitle} 
+                        />
 
+                        {/* Seletor de data */}
                         <Text style={styles.label}>Para qual dia?</Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dateScroll}>
-                            {dates.map((date, idx) => {
-                                const isActive = isSameDay(date, selectedDate);
-                                const isToday = isSameDay(date, new Date());
-                                const tomorrow = new Date();
-                                tomorrow.setDate(tomorrow.getDate() + 1);
-                                const isTomorrow = isSameDay(date, tomorrow);
-
-                                return (
-                                    <TouchableOpacity key={idx} style={[styles.dateCard, isActive && styles.dateCardActive]} onPress={() => setSelectedDate(date)} activeOpacity={0.7}>
-                                        <Text style={[styles.dateDayName, isActive && styles.dateTextActive]}>{isToday ? 'Hoje' : isTomorrow ? 'Amanhã' : formatDayName(date)}</Text>
-                                        <Text style={[styles.dateNumber, isActive && styles.dateTextActive]}>{date.getDate()}</Text>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </ScrollView>
-
-                        <Text style={styles.label}>Horário (Opcional)</Text>
-                        <View style={styles.timeRow}>
-                            <View style={styles.iconBg}><Clock size={20} color="#64748b" /></View>
-                            <TextInput style={[styles.input, { flex: 1, marginBottom: 0 }]} placeholder="14:30" value={time} onChangeText={setTime} />
+                        <View style={styles.rowInput}>
+                            <View style={styles.iconBg}><CalendarIcon size={20} color="#64748b" /></View>
+                            <TouchableOpacity
+                                style={[styles.input, { flex: 1, marginBottom: 0, justifyContent: 'center' }]}
+                                onPress={() => setShowDatePicker(true)}
+                            >
+                                <Text style={styles.inputText}>{formatDate(selectedDate)}</Text>
+                            </TouchableOpacity>
                         </View>
+
+                        {showDatePicker && (
+                            <View style={styles.pickerWrapper}>
+                                <DateTimePicker
+                                    value={selectedDate}
+                                    mode="date"
+                                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                    onChange={(event, date) => {
+                                        if (Platform.OS === 'android') setShowDatePicker(false);
+                                        if (date) setSelectedDate(date);
+                                    }}
+                                />
+                                {Platform.OS === 'ios' && (
+                                    <TouchableOpacity style={styles.confirmBtn} onPress={() => setShowDatePicker(false)}>
+                                        <Text style={styles.confirmBtnText}>Confirmar Data</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        )}
+
+                        {/* Seletor de hora */}
+                        <Text style={styles.label}>Horário (Opcional)</Text>
+                        <View style={styles.rowInput}>
+                            <View style={styles.iconBg}><Clock size={20} color="#64748b" /></View>
+                            <TouchableOpacity
+                                style={[styles.input, { flex: 1, marginBottom: 0, justifyContent: 'center' }]}
+                                onPress={() => setShowTimePicker(true)}
+                            >
+                                <Text style={[styles.inputText, !isTimeSet && { color: '#94a3b8' }]}>
+                                    {isTimeSet ? formatTime(selectedTime) : "Selecionar horário"}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {showTimePicker && (
+                            <View style={styles.pickerWrapper}>
+                                <DateTimePicker
+                                    value={selectedTime}
+                                    mode="time"
+                                    is24Hour={true}
+                                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                    onChange={(event, date) => {
+                                        if (Platform.OS === 'android') setShowTimePicker(false);
+                                        if (date) {
+                                            setSelectedTime(date);
+                                            setIsTimeSet(true);
+                                        }
+                                    }}
+                                />
+                                {Platform.OS === 'ios' && (
+                                    <TouchableOpacity style={styles.confirmBtn} onPress={() => setShowTimePicker(false)}>
+                                        <Text style={styles.confirmBtnText}>Confirmar Hora</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        )}
 
                         <Text style={styles.label}>Categoria da Atividade</Text>
                         <View style={styles.tabs}>
@@ -114,22 +175,29 @@ const styles = StyleSheet.create({
     header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20, alignItems: 'center' },
     title: { fontSize: 22, fontWeight: '800', color: '#0f172a' },
     scrollContent: { paddingBottom: 20 },
+    
     label: { fontSize: 14, fontWeight: '700', color: '#475569', marginBottom: 8, marginTop: 16 },
-    input: { backgroundColor: 'white', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 16, padding: 16, fontSize: 16, color: '#1e293b' },
-    timeRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    input: { backgroundColor: 'white', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 16, padding: 16 },
+    inputText: { fontSize: 16, color: '#1e293b' },
+    
+    rowInput: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     iconBg: { padding: 16, backgroundColor: 'white', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 16 },
-    tabs: { flexDirection: 'row', gap: 8 },
+    
+    pickerWrapper: { backgroundColor: '#f1f5f9', borderRadius: 16, marginTop: 12, padding: 12, alignItems: 'center' },
+    confirmBtn: { backgroundColor: '#3b82f6', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12, marginTop: 8, width: '100%', alignItems: 'center' },
+    confirmBtnText: { color: 'white', fontWeight: 'bold' },
+
+    tabs: { flexDirection: 'row', gap: 8, marginTop: 8 },
     tab: { flex: 1, paddingVertical: 14, alignItems: 'center', borderRadius: 16, backgroundColor: 'white', borderWidth: 1, borderColor: '#e2e8f0', gap: 4 },
     tabText: { fontWeight: '600', color: '#64748b', fontSize: 12 },
-    activeTabTask: { backgroundColor: '#fef3c7', borderColor: '#fde68a' }, activeTabTextTask: { color: '#d97706' },
-    activeTabClass: { backgroundColor: '#e0f2fe', borderColor: '#bae6fd' }, activeTabTextClass: { color: '#0284c7' },
-    activeTabEvent: { backgroundColor: '#fce7f3', borderColor: '#fbcfe8' }, activeTabTextEvent: { color: '#db2777' },
-    dateScroll: { gap: 10, paddingBottom: 4 },
-    dateCard: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 16, backgroundColor: 'white', borderWidth: 1, borderColor: '#e2e8f0', alignItems: 'center', minWidth: 70 },
-    dateCardActive: { backgroundColor: '#4f46e5', borderColor: '#4f46e5' },
-    dateDayName: { fontSize: 13, color: '#64748b', fontWeight: '600', marginBottom: 2 },
-    dateNumber: { fontSize: 18, color: '#1e293b', fontWeight: '800' },
-    dateTextActive: { color: 'white' },
+    
+    activeTabTask: { backgroundColor: '#fef3c7', borderColor: '#fde68a' }, 
+    activeTabTextTask: { color: '#d97706' },
+    activeTabClass: { backgroundColor: '#e0f2fe', borderColor: '#bae6fd' }, 
+    activeTabTextClass: { color: '#0284c7' },
+    activeTabEvent: { backgroundColor: '#fce7f3', borderColor: '#fbcfe8' }, 
+    activeTabTextEvent: { color: '#db2777' },
+    
     saveBtn: { backgroundColor: '#4f46e5', padding: 18, borderRadius: 16, alignItems: 'center', marginTop: 32 },
     saveText: { color: 'white', fontWeight: 'bold', fontSize: 16 }
 });
