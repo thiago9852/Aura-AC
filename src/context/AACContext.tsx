@@ -204,7 +204,11 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const clearSentence = () => setSentence([]);
 
     const speak = (text: string) => {
-        Speech.speak(text, { language: 'pt-BR', rate: settings.speakingRate });
+        Speech.speak(text, {
+            language: 'pt-BR',
+            rate: settings.speakingRate,
+            voice: settings.voiceId || undefined
+        });
     };
 
     return (

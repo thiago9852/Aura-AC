@@ -3,6 +3,7 @@ import React from 'react';
 import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import * as Icons from 'lucide-react-native';
 import { SymbolItem } from '../../types';
+import { useAAC } from '../../context/AACContext';
 
 interface Props {
   item: SymbolItem;
@@ -21,21 +22,34 @@ const FITZGERALD_COLORS: any = {
 };
 
 export default function SymbolCard({ item, onPress, onLongPress }: Props) {
+  const { settings } = useAAC();
   const Icon = Icons[item.iconName as keyof typeof Icons] as any;
   const theme = FITZGERALD_COLORS[item.colorCode || 'white'] || FITZGERALD_COLORS.white;
 
+  // Lógica do Tamanho do Grid
+  const isSmall = settings.gridSize === 'small';
+  const isLarge = settings.gridSize === 'large';
+
+  // O tamanho dinâmico (3% é o gap usado na HomeScreen)
+  const iconSize = isSmall ? 22 : isLarge ? 40 : 28;
+  const textSize = isSmall ? 11 : isLarge ? 18 : 13;
+
+  // Ajustado para o Acesso Rápido
+  const widthPercentageMap: any = { small: '22%', medium: '30%', large: '47%' };
+  const fixedCardWidth = widthPercentageMap[settings.gridSize] || '30%';
+
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: theme.bg, shadowColor: theme.shadow }]}
+      style={[styles.card, { backgroundColor: theme.bg, shadowColor: theme.shadow, width: fixedCardWidth }]}
       onPress={onPress}
       onLongPress={onLongPress}
       activeOpacity={0.7}
       delayLongPress={350} 
     >
       <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.7)' }]}>
-        {Icon && <Icon size={28} color={theme.fg} strokeWidth={2.5} />}
+        {Icon && <Icon size={iconSize} color={theme.fg} strokeWidth={2.5} />}
       </View>
-      <Text style={[styles.label, { color: theme.fg }]} numberOfLines={2} adjustsFontSizeToFit>
+      <Text style={[styles.label, { color: theme.fg, fontSize: textSize }]} numberOfLines={2} adjustsFontSizeToFit>
         {item.label}
       </Text>
     </TouchableOpacity>
@@ -44,7 +58,6 @@ export default function SymbolCard({ item, onPress, onLongPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    width: '31%',
     aspectRatio: 1,
     borderRadius: 20,
     padding: 8,

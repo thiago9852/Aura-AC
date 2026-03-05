@@ -73,6 +73,27 @@ export default function SettingsModal({ visible, onClose }: Props) {
                             </TouchableOpacity>
                         </View>
 
+                        {/* Acessibilidade Motora */}
+                        {renderOptionGroup("Acessibilidade Motora", <Hand size={20} color="#8b5cf6" />, (
+                            <>
+                                <Text style={styles.label}>Tamanho dos Botões</Text>
+                                <View style={styles.rowChoices}>
+                                    {['small', 'medium', 'large'].map((size) => (
+                                        <TouchableOpacity
+                                            key={size}
+                                            style={[styles.chip, settings.gridSize === size && styles.chipActiveHover]}
+                                            onPress={() => updateSettings({ gridSize: size as any })}
+                                            activeOpacity={0.7}
+                                        >
+                                            <Text style={[styles.chipText, settings.gridSize === size && styles.chipTextActive]}>
+                                                {size === 'small' ? 'Pequeno' : size === 'medium' ? 'Médio' : 'Grande'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </>
+                        ))}
+
                         {/*Acessibilidade de voz & Feedback */}
                         {renderOptionGroup("Feedback e Voz", <Volume2 size={20} color="#10b981" />, (
                             <>
