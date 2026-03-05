@@ -48,6 +48,7 @@ interface AACContextType {
     clearSentence: () => void;
     
     settings: UserSettings;
+    updateSettings: (newSettings: Partial<UserSettings>) => void;
     speak: (text: string) => void;
 }
 
@@ -64,6 +65,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     useEffect(() => {
         const load = async () => {
+            // Carrega as categorias
             const savedCats = await AsyncStorage.getItem('aac_categories');
             if (savedCats) {
                 const parsed: Category[] = JSON.parse(savedCats);
@@ -77,14 +79,28 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 setCategories(INITIAL_CATEGORIES);
             }
 
+            // Carrega os favoritos
             const savedFavs = await AsyncStorage.getItem('aac_favorites');
             if (savedFavs) setFavorites(JSON.parse(savedFavs));
 
+            // Carrega a agenda
             const savedAgenda = await AsyncStorage.getItem('aac_agenda');
             if (savedAgenda) setAgendaItems(JSON.parse(savedAgenda));
+
+            // Carrega as configurações
+            const savedSettings = await AsyncStorage.getItem('aac_settings');
+            if (savedSettings) setSettings({...DEFAULT_SETTINGS, ...JSON.parse(savedSettings)});
         };
         load();
     }, []);
+
+
+    // Atualiza as configurações
+    const updateSettings = async (newSettings: Partial<UserSettings>) => {
+        const updated = { ...settings, ...newSettings };
+        setSettings(updated);
+        await AsyncStorage.setItem('aac_settings', JSON.stringify(updated));
+    };
 
     // Helpers e storage
     const saveCategories = async (cats: Category[]) => {
@@ -200,7 +216,7 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             favorites, addFavorite, removeFavorite,
             agendaItems, addAgendaItem, deleteAgendaItem, toggleAgendaItem, updateAgendaItem,
             sentence, addToSentence, removeFromSentence, clearSentence,
-            settings, speak
+            settings, updateSettings, speak
         }}>
             {children}
         </AACContext.Provider>

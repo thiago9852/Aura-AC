@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, SafeAreaView, Text } from 'react-native';
 import { AACProvider, useAAC } from './src/context/AACContext';
 import Sidebar from './src/components/ui/Sidebar';
+import Header from './src/components/ui/Header';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Telas Importadas
@@ -12,7 +13,7 @@ import AgendaScreen from './src/screens/AgendaScreen';
 // Componentes de Páginas Vazias
 const FavoritesScreen = () => <Placeholder title="Favoritos" />;
 // const AgendaScreen = () => <Placeholder title="Agenda" />;
-const ProfileScreen = () => <Placeholder title="Configurações" />;
+// const ProfileScreen = () => <Placeholder title="Configurações" />;
 
 const Placeholder = ({ title }: { title: string }) => (
   <View style={styles.center}>
@@ -31,7 +32,6 @@ function AppContent() {
       case 'favorites': return <HomeScreen />;
       case 'agenda': return <AgendaScreen />;
       case 'manage': return <CategoryManager />;
-      case 'profile': return <ProfileScreen />;
       default: return <HomeScreen />;
     }
   };
@@ -42,6 +42,11 @@ function AppContent() {
         
         {/* Renderiza a tela baseada no switch */}
         <View style={styles.main}>
+
+          {/* Header */}
+          <Header />
+
+          {/* Tela */}
           <View style={styles.content}>
             {renderScreen()}
           </View>
