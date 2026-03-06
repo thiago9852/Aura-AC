@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS: UserSettings = {
     voiceId: null,
     gridSize: 'medium',
     speakingRate: 1.0,
+    doubleClickToSpeak: false,
 };
 
 interface AACContextType {

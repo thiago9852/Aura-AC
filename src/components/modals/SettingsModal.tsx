@@ -91,6 +91,18 @@ export default function SettingsModal({ visible, onClose }: Props) {
                                         </TouchableOpacity>
                                     ))}
                                 </View>
+
+                                <View style={styles.switchRow}>
+                                    <View style={styles.switchTextContainer}>
+                                        <Text style={styles.switchTitle}>Clique Duplo</Text>
+                                        <Text style={styles.switchDesc}>Exige dois toques rápidos para ativar o botão, evitando cliques não intencionais.</Text>
+                                    </View>
+                                    <Switch
+                                        value={!!settings.doubleClickToSpeak}
+                                        onValueChange={(val) => updateSettings({ doubleClickToSpeak: val })}
+                                        trackColor={{ false: '#cbd5e1', true: '#8b5cf6' }}
+                                    />
+                                </View>
                             </>
                         ))}
 

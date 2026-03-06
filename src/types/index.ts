@@ -33,6 +33,7 @@ export interface UserSettings {
     voiceId: string | null;
     gridSize: 'small' | 'medium' | 'large';
     speakingRate: number; // 0.5 até 2
+    doubleClickToSpeak: boolean;
 }
 
 export interface User {

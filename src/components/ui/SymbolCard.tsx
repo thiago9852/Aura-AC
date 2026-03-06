@@ -1,5 +1,5 @@
 // src/components/ui/SymbolCard.tsx
-import React from 'react';
+import React, { useRef } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import * as Icons from 'lucide-react-native';
 import { SymbolItem } from '../../types';
@@ -26,11 +26,28 @@ export default function SymbolCard({ item, onPress, onLongPress }: Props) {
   const Icon = Icons[item.iconName as keyof typeof Icons] as any;
   const theme = FITZGERALD_COLORS[item.colorCode || 'white'] || FITZGERALD_COLORS.white;
 
+
+  // Lógica do Duplo Clique
+  const lastPress = useRef<number>(0);
+  const handlePress = () => {
+    if (settings.doubleClickToSpeak) {
+      const now = Date.now();
+      if (now - lastPress.current < 400) {
+        onPress();
+        lastPress.current = 0;
+      } else {
+        lastPress.current = now;
+      }
+    } else {
+      onPress();
+    }
+  };
+
   // Lógica do Tamanho do Grid
   const isSmall = settings.gridSize === 'small';
   const isLarge = settings.gridSize === 'large';
 
-  // O tamanho dinâmico (3% é o gap usado na HomeScreen)
+  // O tamanho dinâmico
   const iconSize = isSmall ? 22 : isLarge ? 40 : 28;
   const textSize = isSmall ? 11 : isLarge ? 18 : 13;
 
@@ -41,10 +58,10 @@ export default function SymbolCard({ item, onPress, onLongPress }: Props) {
   return (
     <TouchableOpacity
       style={[styles.card, { backgroundColor: theme.bg, shadowColor: theme.shadow, width: fixedCardWidth }]}
-      onPress={onPress}
+      onPress={handlePress}
       onLongPress={onLongPress}
       activeOpacity={0.7}
-      delayLongPress={350} 
+      delayLongPress={350}
     >
       <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.7)' }]}>
         {Icon && <Icon size={iconSize} color={theme.fg} strokeWidth={2.5} />}
