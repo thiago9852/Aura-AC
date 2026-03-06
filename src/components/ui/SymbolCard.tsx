@@ -26,6 +26,13 @@ export default function SymbolCard({ item, onPress, onLongPress }: Props) {
   const Icon = Icons[item.iconName as keyof typeof Icons] as any;
   const theme = FITZGERALD_COLORS[item.colorCode || 'white'] || FITZGERALD_COLORS.white;
 
+  // Lógica do Alto Contraste
+  const isHighContrast = settings.highContrast;
+  const bg = isHighContrast ? '#0f172a' : theme.bg;
+  const fg = isHighContrast ? '#ffffff' : theme.fg;
+  const borderColor = isHighContrast ? theme.shadow : 'transparent';
+  const borderWidth = isHighContrast ? 4 : 0;
+  const iconBg = isHighContrast ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.7)';
 
   // Lógica do Duplo Clique
   const lastPress = useRef<number>(0);
@@ -57,16 +64,16 @@ export default function SymbolCard({ item, onPress, onLongPress }: Props) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: theme.bg, shadowColor: theme.shadow, width: fixedCardWidth }]}
+      style={[styles.card, { backgroundColor: bg, shadowColor: borderColor, borderWidth, width: fixedCardWidth }]}
       onPress={handlePress}
       onLongPress={onLongPress}
       activeOpacity={0.7}
       delayLongPress={350}
     >
-      <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.7)' }]}>
-        {Icon && <Icon size={iconSize} color={theme.fg} strokeWidth={2.5} />}
+      <View style={[styles.iconContainer, { backgroundColor: iconBg }]}>
+        {Icon && <Icon size={iconSize} color={fg} strokeWidth={2.5} />}
       </View>
-      <Text style={[styles.label, { color: theme.fg, fontSize: textSize }]} numberOfLines={2} adjustsFontSizeToFit>
+      <Text style={[styles.label, { color: fg, fontSize: textSize }]} numberOfLines={2} adjustsFontSizeToFit>
         {item.label}
       </Text>
     </TouchableOpacity>

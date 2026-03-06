@@ -106,6 +106,23 @@ export default function SettingsModal({ visible, onClose }: Props) {
                             </>
                         ))}
 
+                        {/* Acessibilidade Visual */}
+                        {renderOptionGroup("Acessibilidade Visual", <Monitor size={20} color="#f59e0b" />, (
+                            <>
+                                <View style={styles.switchRow}>
+                                    <View style={styles.switchTextContainer}>
+                                        <Text style={styles.switchTitle}>Alto Contraste</Text>
+                                        <Text style={styles.switchDesc}>Reforça as bordas, remove tons suaves e clarifica o texto para baixa visão.</Text>
+                                    </View>
+                                    <Switch
+                                        value={!!settings.highContrast}
+                                        onValueChange={(val) => updateSettings({ highContrast: val })}
+                                        trackColor={{ false: '#cbd5e1', true: '#f59e0b' }}
+                                    />
+                                </View>
+                            </>
+                        ))}
+
                         {/*Acessibilidade de voz & Feedback */}
                         {renderOptionGroup("Feedback e Voz", <Volume2 size={20} color="#10b981" />, (
                             <>
@@ -170,32 +187,26 @@ const styles = StyleSheet.create({
     title: { fontSize: 24, fontWeight: '800', color: '#0f172a' },
     closeBtn: { padding: 8, backgroundColor: '#f1f5f9', borderRadius: 99 },
     scroll: { flex: 1, padding: 24 },
-
     profileSection: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', padding: 20, borderRadius: 24, marginBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 },
     avatar: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#eff6ff', alignItems: 'center', justifyContent: 'center', marginRight: 16 },
     profileInfo: { flex: 1 },
     profileName: { fontSize: 20, fontWeight: '800', color: '#0f172a' },
     profileEmail: { fontSize: 14, color: '#64748b', marginTop: 2 },
     logoutBtn: { padding: 12, backgroundColor: '#fef2f2', borderRadius: 16 },
-
     groupContainer: { backgroundColor: 'white', borderRadius: 24, marginBottom: 20, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 8, elevation: 1 },
     groupHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 20, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
     iconContainer: { padding: 10, backgroundColor: '#f8fafc', borderRadius: 12 },
     groupTitle: { fontSize: 18, fontWeight: '700', color: '#1e293b' },
     groupContent: { padding: 20, paddingTop: 16 },
-
     label: { fontSize: 14, fontWeight: '700', color: '#475569', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 },
     rowChoices: { flexDirection: 'row', gap: 8, marginBottom: 24 },
-
     chip: { flex: 1, paddingVertical: 14, borderRadius: 16, backgroundColor: '#f1f5f9', alignItems: 'center', borderWidth: 1, borderColor: 'transparent' },
     chipActiveHover: { backgroundColor: '#f5f3ff', borderColor: '#c4b5fd' },
     chipText: { fontSize: 14, fontWeight: '600', color: '#64748b' },
     chipTextActive: { color: '#7c3aed', fontWeight: '800' },
-
     chipActiveHoverGreen: { backgroundColor: '#ecfdf5', borderColor: '#a7f3d0' },
     chipTextActiveGreen: { color: '#059669', fontWeight: '800' },
-
-    switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16 },
+    switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 },
     switchTextContainer: { flex: 1, paddingRight: 16 },
     switchTitle: { fontSize: 16, fontWeight: '700', color: '#334155' },
     switchDesc: { fontSize: 13, color: '#94a3b8', marginTop: 4, lineHeight: 18 },

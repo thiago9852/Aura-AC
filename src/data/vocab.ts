@@ -21,7 +21,7 @@ export const INITIAL_CATEGORIES: Category[] = [
   },
   {
     id: 'feelings',
-    name: 'Sentimentos',
+    name: 'Sentimento',
     icon: 'Heart',
     color: '#dbeafe', 
     items: [
