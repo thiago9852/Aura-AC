@@ -34,6 +34,7 @@ export interface UserSettings {
     gridSize: 'small' | 'medium' | 'large';
     speakingRate: number; // 0.5 até 2
     doubleClickToSpeak: boolean;
+    speakOnlyOnPlay: boolean;
 }
 
 export interface User {

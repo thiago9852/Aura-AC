@@ -3,6 +3,7 @@ import { View, StyleSheet, SafeAreaView, Text } from 'react-native';
 import { AACProvider, useAAC } from './src/context/AACContext';
 import Sidebar from './src/components/ui/Sidebar';
 import Header from './src/components/ui/Header';
+import SentenceBar from './src/components/ui/SentenceBar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Telas Importadas
@@ -45,6 +46,11 @@ function AppContent() {
 
           {/* Header */}
           <Header />
+
+          {/* Exibe a barra só nas telas de comunicação */}
+          {(activeTab === 'home' || activeTab === 'favorites') && (
+             <SentenceBar />
+          )}
 
           {/* Tela */}
           <View style={styles.content}>

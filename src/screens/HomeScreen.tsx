@@ -11,7 +11,7 @@ import * as Icons from 'lucide-react-native';
 const { ArrowLeft, MessageCircle, Star, LayoutGrid, Folder, Plus } = Icons;
 
 export default function HomeScreen() {
-  const { categories, favorites, addToSentence, activeTab, speak, activeCategoryId, goBack, navigateToCategory } = useAAC();
+  const { categories, favorites, addToSentence, activeTab, speak, activeCategoryId, goBack, navigateToCategory, settings } = useAAC();
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [editInitialData, setEditInitialData] = useState<SymbolItem | null>(null);
@@ -20,11 +20,13 @@ export default function HomeScreen() {
   const [selectedActionItem, setSelectedActionItem] = useState<SymbolItem | null>(null);
   const [selectedActionCategory, setSelectedActionCategory] = useState<string | null>(null);
 
-  // Home Screen & favorites
+  // Home Screen & favoritos
   if (activeTab !== 'home' && activeTab !== 'favorites') return null;
 
   const handlePressSymbol = (item: any) => {
-    speak(item.speechText || item.label);
+    if (!settings.speakOnlyOnPlay) {
+      speak(item.speechText || item.label);
+    }
     addToSentence(item);
   };
 
@@ -87,7 +89,7 @@ export default function HomeScreen() {
     );
   }
 
-  // Visão de dentro de uma Categoria
+  // Visão de dentro de uma Categoria (Aba Home)
   if (activeCategoryId) {
     const category = categories.find(c => c.id === activeCategoryId);
     if (!category) return null;

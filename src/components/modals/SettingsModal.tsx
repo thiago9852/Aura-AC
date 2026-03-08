@@ -141,6 +141,19 @@ export default function SettingsModal({ visible, onClose }: Props) {
                                     ))}
                                 </View>
 
+                                {/* Switch: Falar Apenas no Play */}
+                                <View style={styles.switchRow}>
+                                    <View style={styles.switchTextContainer}>
+                                        <Text style={styles.switchTitle}>Falar Apenas no Play</Text>
+                                        <Text style={styles.switchDesc}>Muta o clique em botões individuais para focar apenas na frase completa lá em baixo.</Text>
+                                    </View>
+                                    <Switch
+                                        value={!!settings.speakOnlyOnPlay}
+                                        onValueChange={(val) => updateSettings({ speakOnlyOnPlay: val })}
+                                        trackColor={{ false: '#cbd5e1', true: '#10b981' }}
+                                    />
+                                </View>
+                                
                                 {voices.length > 0 && (
                                     <View style={{ marginTop: 16 }}>
                                         <Text style={styles.label}>Timbre da Voz</Text>

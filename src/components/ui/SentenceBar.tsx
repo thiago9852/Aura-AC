@@ -1,14 +1,15 @@
 // src/components/ui/SentenceBar.tsx
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Play, Delete, X } from 'lucide-react-native';
 import { useAAC } from '../../context/AACContext';
 
 export default function SentenceBar() {
   const { sentence, removeFromSentence, clearSentence, speak } = useAAC();
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const handleSpeak = () => {
-    const text = sentence.map(s => s.label).join(' ');
+    const text = sentence.map(s => s.speechText || s.label).join(' ');
     if (text.trim().length > 0) {
       speak(text);
     }
@@ -17,10 +18,17 @@ export default function SentenceBar() {
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
-        <ScrollView horizontal style={styles.scroll} contentContainerStyle={styles.scrollContent} showsHorizontalScrollIndicator={false}>
+        <ScrollView 
+          ref={scrollViewRef}
+          horizontal 
+          style={styles.scroll} 
+          contentContainerStyle={styles.scrollContent} 
+          showsHorizontalScrollIndicator={false}
+          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })} 
+        >
           {sentence.length === 0 && <Text style={styles.placeholder}>Sua frase aparecerá aqui...</Text>}
-          {sentence.map(item => (
-            <View key={item.tempId} style={[styles.chip, { backgroundColor: item.colorCode ? `${item.colorCode}15` : '#f1f5f9' }]}>
+          {sentence.map((item, index) => (
+            <View key={item.tempId + index} style={[styles.chip, { backgroundColor: item.colorCode ? `${item.colorCode}15` : '#f1f5f9' }]}>
               <Text style={styles.chipText}>{item.label}</Text>
               <TouchableOpacity onPress={() => removeFromSentence(item.tempId)} style={styles.chipClose}>
                 <X size={14} color="#64748b" />
