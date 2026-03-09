@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS: UserSettings = {
     speakingRate: 1.0,
     doubleClickToSpeak: false,
     speakOnlyOnPlay: false,
+    cardDisplayMode: 'both',
 };
 
 interface AACContextType {

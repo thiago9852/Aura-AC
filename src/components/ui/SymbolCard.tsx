@@ -58,24 +58,60 @@ export default function SymbolCard({ item, onPress, onLongPress }: Props) {
   const iconSize = isSmall ? 22 : isLarge ? 40 : 28;
   const textSize = isSmall ? 11 : isLarge ? 18 : 13;
 
-  // Ajustado para o acesso rápido
+  // Ajuste para o acesso rápido
   const widthPercentageMap: any = { small: '22%', medium: '30%', large: '47%' };
   const fixedCardWidth = widthPercentageMap[settings.gridSize] || '30%';
 
+  // Lógica do Display Mode
+  const displayMode = settings.cardDisplayMode || 'both';
+  const showIcon = displayMode === 'both' || displayMode === 'icon';
+  const showText = displayMode === 'both' || displayMode === 'text';
+
+  const baseIconSize = isSmall ? 22 : isLarge ? 40 : 28;
+  const baseTextSize = isSmall ? 11 : isLarge ? 18 : 13;
+  
+  const finalIconSize = displayMode === 'icon' ? baseIconSize * 1.5 : baseIconSize;
+  const finalTextSize = displayMode === 'text' ? baseTextSize * 1.3 : baseTextSize;
+
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: bg, shadowColor: borderColor, borderWidth, width: fixedCardWidth }]}
+      style={[
+        styles.card, 
+        { 
+          backgroundColor: bg, 
+          shadowColor: theme.shadow, 
+          width: fixedCardWidth,
+          borderColor: borderColor,
+          borderWidth: borderWidth
+        }
+      ]}
       onPress={handlePress}
       onLongPress={onLongPress}
       activeOpacity={0.7}
       delayLongPress={350}
     >
-      <View style={[styles.iconContainer, { backgroundColor: iconBg }]}>
-        {Icon && <Icon size={iconSize} color={fg} strokeWidth={2.5} />}
-      </View>
-      <Text style={[styles.label, { color: fg, fontSize: textSize }]} numberOfLines={2} adjustsFontSizeToFit>
-        {item.label}
-      </Text>
+      {showIcon && (
+        <View style={[
+          styles.iconContainer, 
+          { 
+            backgroundColor: iconBg, 
+            padding: isSmall ? 8 : 12, 
+            marginBottom: showText ? 6 : 0
+          }
+        ]}>
+          {Icon && <Icon size={finalIconSize} color={fg} strokeWidth={isHighContrast ? 3 : 2.5} />}
+        </View>
+      )}
+
+      {showText && (
+        <Text 
+          style={[styles.label, { color: fg, fontSize: finalTextSize }]} 
+          numberOfLines={displayMode === 'text' ? 3 : 2} 
+          adjustsFontSizeToFit
+        >
+          {item.label}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }
@@ -95,11 +131,8 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     borderRadius: 20,
-    marginBottom: 6,
-    padding: 12,
   },
   label: {
-    fontSize: 13,
     fontWeight: '700',
     textAlign: 'center',
     letterSpacing: -0.2,

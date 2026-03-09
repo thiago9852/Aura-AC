@@ -109,6 +109,26 @@ export default function SettingsModal({ visible, onClose }: Props) {
                         {/* Acessibilidade Visual */}
                         {renderOptionGroup("Acessibilidade Visual", <Monitor size={20} color="#f59e0b" />, (
                             <>
+                                <Text style={styles.label}>Exibição do Cartão</Text>
+                                <View style={styles.rowChoices}>
+                                    {[
+                                        { value: 'both', label: 'Completo' },
+                                        { value: 'icon', label: 'Só Ícone' },
+                                        { value: 'text', label: 'Só Texto' }
+                                    ].map((mode) => (
+                                        <TouchableOpacity
+                                            key={mode.value}
+                                            style={[styles.chip, settings.cardDisplayMode === mode.value && styles.chipActiveHoverOrange]}
+                                            onPress={() => updateSettings({ cardDisplayMode: mode.value as any })}
+                                            activeOpacity={0.7}
+                                        >
+                                            <Text style={[styles.chipText, settings.cardDisplayMode === mode.value && styles.chipTextActiveOrange]}>
+                                                {mode.label}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+
                                 <View style={styles.switchRow}>
                                     <View style={styles.switchTextContainer}>
                                         <Text style={styles.switchTitle}>Alto Contraste</Text>
@@ -145,7 +165,7 @@ export default function SettingsModal({ visible, onClose }: Props) {
                                 <View style={styles.switchRow}>
                                     <View style={styles.switchTextContainer}>
                                         <Text style={styles.switchTitle}>Falar Apenas no Play</Text>
-                                        <Text style={styles.switchDesc}>Muta o clique em botões individuais para focar apenas na frase completa lá em baixo.</Text>
+                                        <Text style={styles.switchDesc}>Muta o clique em botões para focar apenas na frase completa.</Text>
                                     </View>
                                     <Switch
                                         value={!!settings.speakOnlyOnPlay}
@@ -217,6 +237,8 @@ const styles = StyleSheet.create({
     chipActiveHover: { backgroundColor: '#f5f3ff', borderColor: '#c4b5fd' },
     chipText: { fontSize: 14, fontWeight: '600', color: '#64748b' },
     chipTextActive: { color: '#7c3aed', fontWeight: '800' },
+    chipActiveHoverOrange: { backgroundColor: '#fff7ed', borderColor: '#fdba74' },
+    chipTextActiveOrange: { color: '#ea580c', fontWeight: '800' },
     chipActiveHoverGreen: { backgroundColor: '#ecfdf5', borderColor: '#a7f3d0' },
     chipTextActiveGreen: { color: '#059669', fontWeight: '800' },
     switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 },

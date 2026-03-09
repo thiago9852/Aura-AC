@@ -35,6 +35,7 @@ export interface UserSettings {
     speakingRate: number; // 0.5 até 2
     doubleClickToSpeak: boolean;
     speakOnlyOnPlay: boolean;
+    cardDisplayMode?: 'icon' | 'text' | 'both';
 }
 
 export interface User {
