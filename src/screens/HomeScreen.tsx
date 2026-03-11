@@ -1,6 +1,7 @@
 // src/screens/HomeScreen.tsx
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
+import Sortable from 'react-native-sortables';
 import { useAAC } from '../context/AACContext';
 import SymbolCard from '../components/ui/SymbolCard';
 import CreateSymbolModal from '../components/modals/CreateSymbolModal';
@@ -11,7 +12,12 @@ import * as Icons from 'lucide-react-native';
 const { ArrowLeft, MessageCircle, Star, LayoutGrid, Folder, Plus } = Icons;
 
 export default function HomeScreen() {
-  const { categories, favorites, addToSentence, activeTab, speak, activeCategoryId, goBack, navigateToCategory, settings } = useAAC();
+  const { 
+    categories, favorites, addToSentence, 
+    activeTab, speak, activeCategoryId, goBack, 
+    navigateToCategory, settings,
+    reorderCategoryItems, reorderFavorites
+  } = useAAC();
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [editInitialData, setEditInitialData] = useState<SymbolItem | null>(null);
@@ -20,6 +26,9 @@ export default function HomeScreen() {
   const [selectedActionItem, setSelectedActionItem] = useState<SymbolItem | null>(null);
   const [selectedActionCategory, setSelectedActionCategory] = useState<string | null>(null);
 
+  const numColumnsMap: any = { small: 4, medium: 3, large: 2 };
+  const numColumns = numColumnsMap[settings.gridSize] || 3;
+  
   // Home Screen & favoritos
   if (activeTab !== 'home' && activeTab !== 'favorites') return null;
 
@@ -72,16 +81,22 @@ export default function HomeScreen() {
           </View>
         ) : (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.flatListContent}>
-            <View style={styles.grid}>
-              {favorites.map((item) => (
+            <Sortable.Grid
+              columns={numColumns}
+              data={favorites}
+              keyExtractor={(item) => item.id}
+              rowGap={12}
+              columnGap={12}
+              onDragEnd={({ data }) => reorderFavorites(data)}
+              renderItem={({ item }) => (
                 <SymbolCard 
-                  key={item.id} 
                   item={item} 
+                  isSortable={true}
                   onPress={() => handlePressSymbol(item)}
                   onLongPress={() => handleLongPress(item, null)} 
                 />
-              ))}
-            </View>
+              )}
+            />
           </ScrollView>
         )}
         {renderModals()}
@@ -94,37 +109,46 @@ export default function HomeScreen() {
     const category = categories.find(c => c.id === activeCategoryId);
     if (!category) return null;
 
+    const dataWithAddButton = [...category.items, { id: 'ADD_BUTTON_ID', label: 'Novo', isAddButton: true }];
+
     return (
       <View style={styles.container}>
         <View style={styles.categoryHeader}>
-          <TouchableOpacity onPress={goBack} style={styles.backBtn} activeOpacity={0.7}>
-            <ArrowLeft size={24} color="#334155" />
-          </TouchableOpacity>
-          <View style={[styles.headerIconContainer, { backgroundColor: `${category.color}20` }]}>
-            <Folder size={20} color={category.color} />
-          </View>
+          <TouchableOpacity onPress={goBack} style={styles.backBtn} activeOpacity={0.7}><ArrowLeft size={24} color="#334155" /></TouchableOpacity>
+          <View style={[styles.headerIconContainer, { backgroundColor: `${category.color}20` }]}><Folder size={20} color={category.color} /></View>
           <Text style={styles.title}>{category.name}</Text>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.flatListContent}>
-          <View style={styles.grid}>
-            {category.items.map((item) => (
-              <SymbolCard 
-                key={item.id} 
-                item={item} 
-                onPress={() => handlePressSymbol(item)}
-                onLongPress={() => handleLongPress(item, activeCategoryId)} 
-              />
-            ))}
-            <TouchableOpacity 
-              style={[styles.addCard, { width: '31%', aspectRatio: 1 }]} 
-              onPress={() => setShowAddModal(true)}
-              activeOpacity={0.7}
-            >
-              <Plus size={32} color="#94a3b8" />
-              <Text style={styles.addText}>Novo</Text>
-            </TouchableOpacity>
-          </View>
+            <Sortable.Grid
+              columns={numColumns}
+              data={dataWithAddButton}
+              keyExtractor={(item) => item.id}
+              rowGap={12}
+              columnGap={12}
+              onDragEnd={({ data }) => {
+                 const newOrder = data.filter((i: any) => !i.isAddButton) as SymbolItem[];
+                 reorderCategoryItems(activeCategoryId, newOrder);
+              }}
+              renderItem={({ item }: { item: any }) => {
+                if (item.isAddButton) {
+                    return (
+                        <Sortable.Touchable style={[styles.addCard, { width: '100%', aspectRatio: 1 }]} onTap={() => setShowAddModal(true)}>
+                            <Plus size={32} color="#94a3b8" />
+                            <Text style={styles.addText}>Novo</Text>
+                        </Sortable.Touchable>
+                    );
+                }
+                return (
+                  <SymbolCard 
+                    item={item} 
+                    isSortable={true}
+                    onPress={() => handlePressSymbol(item)}
+                    onLongPress={() => handleLongPress(item, activeCategoryId)} 
+                  />
+                );
+              }}
+            />
         </ScrollView>
         {renderModals()}
       </View>

@@ -9,6 +9,7 @@ interface Props {
   item: SymbolItem;
   onPress: () => void;
   onLongPress?: () => void;
+  isSortable?: boolean;
 }
 
 // Paleta de cores Fitz
@@ -21,7 +22,7 @@ const FITZGERALD_COLORS: any = {
   white: { bg: '#ffffff', fg: '#475569', shadow: '#94a3b8' },
 };
 
-export default function SymbolCard({ item, onPress, onLongPress }: Props) {
+export default function SymbolCard({ item, onPress, onLongPress, isSortable = false }: Props) {
   const { settings } = useAAC();
   const Icon = Icons[item.iconName as keyof typeof Icons] as any;
   const theme = FITZGERALD_COLORS[item.colorCode || 'white'] || FITZGERALD_COLORS.white;
@@ -58,9 +59,9 @@ export default function SymbolCard({ item, onPress, onLongPress }: Props) {
   const iconSize = isSmall ? 22 : isLarge ? 40 : 28;
   const textSize = isSmall ? 11 : isLarge ? 18 : 13;
 
-  // Ajuste para o acesso rápido
-  const widthPercentageMap: any = { small: '22%', medium: '30%', large: '47%' };
-  const fixedCardWidth = widthPercentageMap[settings.gridSize] || '30%';
+  // Se for sortable, o grid controla o width. Se não, usa porcentagem fixa
+  const widthPercentage = isSmall ? '22%' : isLarge ? '47%' : '31%';
+  const finalWidth = isSortable ? '100%' : widthPercentage;
 
   // Lógica do Display Mode
   const displayMode = settings.cardDisplayMode || 'both';
@@ -80,7 +81,7 @@ export default function SymbolCard({ item, onPress, onLongPress }: Props) {
         { 
           backgroundColor: bg, 
           shadowColor: theme.shadow, 
-          width: fixedCardWidth,
+          width: finalWidth,
           borderColor: borderColor,
           borderWidth: borderWidth
         }

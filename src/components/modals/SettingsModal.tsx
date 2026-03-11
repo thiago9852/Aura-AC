@@ -1,7 +1,7 @@
 // src/components/modals/SettingsModal.tsx
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Switch } from 'react-native';
-import { X, User, LogOut, Monitor, Volume2, Hand } from 'lucide-react-native';
+import { X, User, LogOut, Monitor, Volume2, Hand, Cloud } from 'lucide-react-native';
 import * as Speech from 'expo-speech';
 import { useAAC } from '../../context/AACContext';
 
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function SettingsModal({ visible, onClose }: Props) {
-    const { settings, updateSettings } = useAAC();
+    const { settings, updateSettings, exportProfile, importProfile } = useAAC();
     const [voices, setVoices] = React.useState<Speech.Voice[]>([]);
 
     React.useEffect(() => {
@@ -72,6 +72,21 @@ export default function SettingsModal({ visible, onClose }: Props) {
                                 <LogOut size={20} color="#ef4444" />
                             </TouchableOpacity>
                         </View>
+
+                        {/* Backup e Sincronização */}
+                        {renderOptionGroup("Backup e Restauração", <Cloud size={20} color="#0ea5e9" />, (
+                            <View style={{ gap: 12 }}>
+                                <Text style={styles.switchDesc}>Exporte tudo para um arquivo seguro ou importe para recuperar em outro aparelho.</Text>
+                                
+                                <TouchableOpacity style={styles.backupBtnExport} onPress={exportProfile} activeOpacity={0.7}>
+                                    <Text style={styles.backupBtnTextExp}>Salvar Backup (Exportar)</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={styles.backupBtnImport} onPress={importProfile} activeOpacity={0.7}>
+                                    <Text style={styles.backupBtnTextImp}>Restaurar Perfil (Importar)</Text>
+                                </TouchableOpacity>
+                            </View>
+                        ))}
 
                         {/* Acessibilidade Motora */}
                         {renderOptionGroup("Acessibilidade Motora", <Hand size={20} color="#8b5cf6" />, (
@@ -245,4 +260,11 @@ const styles = StyleSheet.create({
     switchTextContainer: { flex: 1, paddingRight: 16 },
     switchTitle: { fontSize: 16, fontWeight: '700', color: '#334155' },
     switchDesc: { fontSize: 13, color: '#94a3b8', marginTop: 4, lineHeight: 18 },
+
+    // Botões de Backup
+    backupBtnExport: { backgroundColor: '#f0f9ff', borderWidth: 1, borderColor: '#bae6fd', padding: 14, borderRadius: 16, alignItems: 'center' },
+    backupBtnTextExp: { color: '#0284c7', fontWeight: 'bold', fontSize: 15 },
+    backupBtnImport: { backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', padding: 14, borderRadius: 16, alignItems: 'center' },
+    backupBtnTextImp: { color: '#475569', fontWeight: 'bold', fontSize: 15 },
+
 });
