@@ -5,23 +5,133 @@ import { useAAC } from '../../context/AACContext';
 import { SymbolItem } from '../../types';
 
 import {
-    X, Star, Heart, Smile, Frown, Coffee, Utensils, Apple, Car, Bus,
-    Bike, Plane, Home, Building, School, Book, Pencil, Monitor, Phone,
-    Music, Gamepad, Tv, Shirt, Clock, Sun, Moon, Cloud, Umbrella, Zap,
-    AlertTriangle, Check, User, Image as ImageIcon
+  X, Star, Heart, Smile, Frown, Coffee, Utensils, Apple, Car, Bus,
+  Bike, Plane, Home, Building, School, Book, Pencil, Monitor, Phone,
+  Music, Gamepad, Tv, Shirt, Clock, Sun, Moon, Cloud, Umbrella, Zap,
+  AlertTriangle, Check, User, Image as ImageIcon, Users, MessageCircle,
+  MessageSquare, ThumbsUp, ThumbsDown, HelpCircle, Info, LogOut, Pizza,
+  Cookie, IceCream, Sandwich, Soup, Beef, Milk, GlassWater, Wine, Cake,
+  Truck, Ambulance, Ship, Navigation, MapPin, Flag, TrainFront, TramFront,
+  Map, Store, Hospital, Hotel, Library, Trees, Tent, Factory, Warehouse,
+  Lamp, Key, Gift, Scissors, Camera, Lightbulb, Hammer, Backpack, Briefcase,
+  Calculator, Snowflake, Rainbow, Flower, Dog, Cat, Bird, Fish, Thermometer,
+  Waves, Leaf, Wind, Mountain, Hand, Eye, Ear, Popcorn, Candy, Banana, Lollipop,
+  Globe
 } from 'lucide-react-native';
 
-const AVAILABLE_ICONS = [
-    { name: 'Star', Icon: Star }, { name: 'Heart', Icon: Heart }, { name: 'Smile', Icon: Smile },
-    { name: 'Frown', Icon: Frown }, { name: 'Coffee', Icon: Coffee }, { name: 'Utensils', Icon: Utensils },
-    { name: 'Apple', Icon: Apple }, { name: 'Car', Icon: Car }, { name: 'Bus', Icon: Bus },
-    { name: 'Bike', Icon: Bike }, { name: 'Plane', Icon: Plane }, { name: 'Home', Icon: Home },
-    { name: 'School', Icon: School }, { name: 'Book', Icon: Book }, { name: 'Pencil', Icon: Pencil },
-    { name: 'Phone', Icon: Phone }, { name: 'Music', Icon: Music }, { name: 'Gamepad', Icon: Gamepad },
-    { name: 'Tv', Icon: Tv }, { name: 'Clock', Icon: Clock }, { name: 'Sun', Icon: Sun },
-    { name: 'Moon', Icon: Moon }, { name: 'Cloud', Icon: Cloud }, { name: 'Zap', Icon: Zap },
-    { name: 'Check', Icon: Check }, { name: 'X', Icon: X }, { name: 'User', Icon: User }
-];
+const ICON_GROUPS: Record<string, { name: string; Icon: any }[]> = {
+  Geral: [
+    { name: 'Star', Icon: Star },
+    { name: 'Heart', Icon: Heart },
+    { name: 'Smile', Icon: Smile },
+    { name: 'Frown', Icon: Frown },
+    { name: 'User', Icon: User },
+    { name: 'Users', Icon: Users },
+    { name: 'Hand', Icon: Hand },
+    { name: 'Eye', Icon: Eye },
+    { name: 'Ear', Icon: Ear },
+    { name: 'MessageCircle', Icon: MessageCircle },
+    { name: 'MessageSquare', Icon: MessageSquare },
+    { name: 'ThumbsUp', Icon: ThumbsUp },
+    { name: 'ThumbsDown', Icon: ThumbsDown },
+    { name: 'Check', Icon: Check },
+    { name: 'X', Icon: X },
+    { name: 'Image', Icon: ImageIcon },
+    { name: 'HelpCircle', Icon: HelpCircle },
+    { name: 'Info', Icon: Info },
+    { name: 'LogOut', Icon: LogOut },
+  ],
+  Comida: [
+    { name: 'Coffee', Icon: Coffee },
+    { name: 'Utensils', Icon: Utensils },
+    { name: 'Apple', Icon: Apple },
+    { name: 'Pizza', Icon: Pizza },
+    { name: 'Cookie', Icon: Cookie },
+    { name: 'IceCream', Icon: IceCream },
+    { name: 'Sandwich', Icon: Sandwich },
+    { name: 'Soup', Icon: Soup },
+    { name: 'Beef', Icon: Beef },
+    { name: 'Milk', Icon: Milk },
+    { name: 'GlassWater', Icon: GlassWater },
+    { name: 'Wine', Icon: Wine },
+    { name: 'Cake', Icon: Cake },
+    { name: 'Popcorn', Icon: Popcorn },
+    { name: 'Candy', Icon: Candy },
+    { name: 'Banana', Icon: Banana },
+    { name: 'Lollipop', Icon: Lollipop },
+  ],
+  Transporte: [
+    { name: 'Car', Icon: Car },
+    { name: 'Bus', Icon: Bus },
+    { name: 'Bike', Icon: Bike },
+    { name: 'Plane', Icon: Plane },
+    { name: 'Truck', Icon: Truck },
+    { name: 'Ambulance', Icon: Ambulance },
+    { name: 'Ship', Icon: Ship },
+    { name: 'Navigation', Icon: Navigation },
+    { name: 'MapPin', Icon: MapPin },
+    { name: 'Flag', Icon: Flag },
+    { name: 'TrainFront', Icon: TrainFront },
+    { name: 'TramFront', Icon: TramFront },
+  ],
+  Lugares: [
+    { name: 'Home', Icon: Home },
+    { name: 'Building', Icon: Building },
+    { name: 'School', Icon: School },
+    { name: 'Map', Icon: Map },
+    { name: 'Store', Icon: Store },
+    { name: 'Hospital', Icon: Hospital },
+    { name: 'Hotel', Icon: Hotel },
+    { name: 'Library', Icon: Library },
+    { name: 'Trees', Icon: Trees },
+    { name: 'Tent', Icon: Tent },
+    { name: 'Factory', Icon: Factory },
+    { name: 'Warehouse', Icon: Warehouse },
+    { name: 'Globe', Icon: Globe },
+  ],
+  Objetos: [
+    { name: 'Pencil', Icon: Pencil },
+    { name: 'Book', Icon: Book },
+    { name: 'Monitor', Icon: Monitor },
+    { name: 'Phone', Icon: Phone },
+    { name: 'Music', Icon: Music },
+    { name: 'Gamepad', Icon: Gamepad },
+    { name: 'Tv', Icon: Tv },
+    { name: 'Shirt', Icon: Shirt },
+    { name: 'Umbrella', Icon: Umbrella },
+    { name: 'Lamp', Icon: Lamp },
+    { name: 'Key', Icon: Key },
+    { name: 'Gift', Icon: Gift },
+    { name: 'Scissors', Icon: Scissors },
+    { name: 'Camera', Icon: Camera },
+    { name: 'Lightbulb', Icon: Lightbulb },
+    { name: 'Hammer', Icon: Hammer },
+    { name: 'Backpack', Icon: Backpack },
+    { name: 'Briefcase', Icon: Briefcase },
+    { name: 'Calculator', Icon: Calculator },
+    { name: 'Clock', Icon: Clock },
+  ],
+  'Tempo/Outros': [
+    { name: 'Sun', Icon: Sun },
+    { name: 'Moon', Icon: Moon },
+    { name: 'Cloud', Icon: Cloud },
+    { name: 'Snowflake', Icon: Snowflake },
+    { name: 'Rainbow', Icon: Rainbow },
+    { name: 'Zap', Icon: Zap },
+    { name: 'AlertTriangle', Icon: AlertTriangle },
+    { name: 'Flower', Icon: Flower },
+    { name: 'Dog', Icon: Dog },
+    { name: 'Cat', Icon: Cat },
+    { name: 'Bird', Icon: Bird },
+    { name: 'Fish', Icon: Fish },
+    { name: 'Thermometer', Icon: Thermometer },
+    { name: 'Waves', Icon: Waves },
+    { name: 'Leaf', Icon: Leaf },
+    { name: 'Wind', Icon: Wind },
+    { name: 'Mountain', Icon: Mountain },
+  ],
+};
+
 
 const COLORS = [
     { code: 'yellow', hex: '#eab308', label: 'Pessoas' },
@@ -47,6 +157,7 @@ export default function CreateSymbolModal({ visible, onClose, categoryId, initia
     const [label, setLabel] = useState('');
     const [mode, setMode] = useState<Mode>('icon');
     const [selectedIcon, setSelectedIcon] = useState('Star');
+    const [selectedIconCategory, setSelectedIconCategory] = useState('Geral');
     const [selectedColorCode, setSelectedColorCode] = useState('white');
 
     React.useEffect(() => {
@@ -99,6 +210,7 @@ export default function CreateSymbolModal({ visible, onClose, categoryId, initia
                         <TextInput
                             style={styles.input}
                             placeholder="Ex: Água, Banheiro..."
+                            placeholderTextColor="#64748b"
                             value={label}
                             onChangeText={setLabel}
                         />
@@ -119,19 +231,30 @@ export default function CreateSymbolModal({ visible, onClose, categoryId, initia
                         {mode === 'icon' && (
                             <View>
                                 <Text style={styles.label}>Escolha um Ícone</Text>
+                                
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.iconCategories}>
+                                    {Object.keys(ICON_GROUPS).map(group => (
+                                        <TouchableOpacity 
+                                            key={group} 
+                                            style={[styles.categoryChip, selectedIconCategory === group && styles.activeCategoryChip]}
+                                            onPress={() => setSelectedIconCategory(group)}
+                                        >
+                                            <Text style={[styles.categoryChipText, selectedIconCategory === group && styles.activeCategoryChipText]}>{group}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+
                                 <View style={styles.iconsContainerBorder}>
-                                    <ScrollView nestedScrollEnabled={true} style={{ maxHeight: 220 }}>
-                                        <View style={styles.grid}>
-                                            {AVAILABLE_ICONS.map(({ name: iconName, Icon }) => (
-                                                <TouchableOpacity
-                                                    key={iconName}
-                                                    style={[styles.iconBtn, selectedIcon === iconName && styles.selected]}
-                                                    onPress={() => setSelectedIcon(iconName)}
-                                                >
-                                                    <Icon size={24} color={selectedIcon === iconName ? 'white' : '#64748b'} />
-                                                </TouchableOpacity>
-                                            ))}
-                                        </View>
+                                    <ScrollView style={styles.iconsScroll} contentContainerStyle={styles.grid} nestedScrollEnabled={true}>
+                                        {ICON_GROUPS[selectedIconCategory].map(({ name: iconName, Icon }) => (
+                                            <TouchableOpacity
+                                                key={iconName}
+                                                style={[styles.iconBtn, selectedIcon === iconName && styles.selected]}
+                                                onPress={() => setSelectedIcon(iconName)}
+                                            >
+                                                <Icon size={24} color={selectedIcon === iconName ? 'white' : '#64748b'} />
+                                            </TouchableOpacity>
+                                        ))}
                                     </ScrollView>
                                 </View>
                             </View>
@@ -167,8 +290,8 @@ export default function CreateSymbolModal({ visible, onClose, categoryId, initia
 }
 
 const styles = StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-    modal: { backgroundColor: 'white', borderRadius: 20, padding: 20, elevation: 5, maxHeight: '90%' },
+    overlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.5)', justifyContent: 'flex-end' },
+    modal: { backgroundColor: '#f8fafc', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40, elevation: 20 },
     header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center' },
     title: { fontSize: 20, fontWeight: 'bold', color: '#1e293b' },
     scrollContent: { paddingBottom: 20 },
@@ -180,9 +303,15 @@ const styles = StyleSheet.create({
     tabText: { fontWeight: '600', color: '#64748b' },
     activeTabText: { color: '#3b82f6' },
     iconsContainerBorder: { borderWidth: 2, borderColor: '#e2e8f0', borderRadius: 12, padding: 6, backgroundColor: '#f8fafc' },
-    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between' },
-    iconBtn: { width: '16%', height: '16%', aspectRatio: 1, borderRadius: 12, backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' },
+    iconsScroll: { height: 185 },
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 15 },
+    iconBtn: { width: '15%', height: '16%', aspectRatio: 1, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' },
     selected: { backgroundColor: '#3b82f6' },
+    iconCategories: { marginBottom: 12, flexDirection: 'row' },
+    categoryChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: '#f1f5f9', marginRight: 8, borderWidth: 1, borderColor: '#e2e8f0' },
+    activeCategoryChip: { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+    categoryChipText: { fontSize: 13, fontWeight: '600', color: '#64748b' },
+    activeCategoryChipText: { color: 'white' },
     colorRow: { flexDirection: 'row', gap: 12 },
     colorBtn: { width: 32, height: 32, borderRadius: 16 },
     selectedColor: { borderWidth: 3, borderColor: '#1e293b' },

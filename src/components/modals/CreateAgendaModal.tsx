@@ -71,6 +71,7 @@ export default function CreateAgendaModal({ visible, onClose }: Props) {
                         <TextInput 
                             style={styles.input} 
                             placeholder="Ex: Aula de Inglês" 
+                            placeholderTextColor={'#64748b'}
                             value={title} 
                             onChangeText={setTitle} 
                         />
@@ -92,6 +93,8 @@ export default function CreateAgendaModal({ visible, onClose }: Props) {
                                 <DateTimePicker
                                     value={selectedDate}
                                     mode="date"
+                                    locale="pt-BR"
+                                    textColor="#0f172a"
                                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                                     onChange={(event, date) => {
                                         if (Platform.OS === 'android') setShowDatePicker(false);
@@ -125,6 +128,7 @@ export default function CreateAgendaModal({ visible, onClose }: Props) {
                                 <DateTimePicker
                                     value={selectedTime}
                                     mode="time"
+                                    textColor="#0f172a"
                                     is24Hour={true}
                                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                                     onChange={(event, date) => {

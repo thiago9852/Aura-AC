@@ -35,14 +35,29 @@ export default function SymbolCard({ item, onPress, onLongPress, isSortable = fa
   const borderWidth = isHighContrast ? 4 : 0;
   const iconBg = isHighContrast ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.7)';
 
-  // Lógica do duplo clique
+  
   const lastPress = useRef<number>(0);
+  const longPressTriggered = useRef(false);
+
+  const handleLongPress = () => {
+    longPressTriggered.current = true;
+    lastPress.current = 0;
+    onLongPress?.();
+  };
+
   const handlePress = () => {
+    if (longPressTriggered.current) {
+      longPressTriggered.current = false;
+      lastPress.current = 0;
+      return;
+    }
+
     if (settings.doubleClickToSpeak) {
       const now = Date.now();
-      if (now - lastPress.current < 400) {
-        onPress();
+
+      if (lastPress.current && now - lastPress.current < 400) {
         lastPress.current = 0;
+        onPress();
       } else {
         lastPress.current = now;
       }
@@ -55,12 +70,8 @@ export default function SymbolCard({ item, onPress, onLongPress, isSortable = fa
   const isSmall = settings.gridSize === 'small';
   const isLarge = settings.gridSize === 'large';
 
-  // O tamanho dinâmico
-  const iconSize = isSmall ? 22 : isLarge ? 40 : 28;
-  const textSize = isSmall ? 11 : isLarge ? 18 : 13;
-
   // Se for sortable, o grid controla o width. Se não, usa porcentagem fixa
-  const widthPercentage = isSmall ? '22%' : isLarge ? '47%' : '31%';
+  const widthPercentage = isSmall ? '21%' : isLarge ? '47%' : '30%';
   const finalWidth = isSortable ? '100%' : widthPercentage;
 
   // Lógica do Display Mode
@@ -87,9 +98,9 @@ export default function SymbolCard({ item, onPress, onLongPress, isSortable = fa
         }
       ]}
       onPress={handlePress}
-      onLongPress={onLongPress}
+      onLongPress={handleLongPress}
       activeOpacity={0.7}
-      delayLongPress={350}
+      delayLongPress={600}
     >
       {showIcon && (
         <View style={[

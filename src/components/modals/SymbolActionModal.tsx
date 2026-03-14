@@ -84,7 +84,7 @@ export default function SymbolActionModal({ visible, onClose, item, categoryId, 
                             </View>
                         </TouchableOpacity>
 
-                        {categoryId && (
+                        {categoryId && categoryId !== 'core' && (
                             <>
                                 <TouchableOpacity style={styles.optionBtn} onPress={handleEdit}>
                                     <View style={[styles.iconBg, { backgroundColor: '#e0f2fe' }]}>

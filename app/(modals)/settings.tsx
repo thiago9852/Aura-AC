@@ -1,16 +1,16 @@
-// src/components/modals/SettingsModal.tsx
+// src/app/(modals)/settings.tsx
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { X, User, LogOut, Monitor, Volume2, Hand, Cloud } from 'lucide-react-native';
 import * as Speech from 'expo-speech';
-import { useAAC } from '../../context/AACContext';
+import { useAAC } from '../../src/context/AACContext';
 
 interface Props {
     visible: boolean;
     onClose: () => void;
 }
 
-export default function SettingsModal({ visible, onClose }: Props) {
+export default function Settings({ visible, onClose }: Props) {
     const { settings, updateSettings, exportProfile, importProfile } = useAAC();
     const [voices, setVoices] = React.useState<Speech.Voice[]>([]);
 

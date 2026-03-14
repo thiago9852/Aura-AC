@@ -29,10 +29,6 @@ interface AACContextType {
     updateCategory: (id: string, data: Partial<Category>) => void;
     deleteCategory: (id: string) => void;
 
-    activeCategoryId: string | null;
-    navigateToCategory: (id: string) => void;
-    goBack: () => void;
-
     addSymbolToCategory: (categoryId: string, item: Omit<SymbolItem, 'id'>) => void;
     updateSymbolInCategory: (categoryId: string, symbolId: string, item: Partial<SymbolItem>) => void;
     deleteSymbolFromCategory: (categoryId: string, symbolId: string) => void;
@@ -70,7 +66,6 @@ const AACContext = createContext<AACContextType | undefined>(undefined);
 export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [activeTab, setActiveTab] = useState<NavigationTab>('home');
     const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
-    const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
     const [sentence, setSentence] = useState<SymbolOrPhrase[]>([]);
     const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
     const [favorites, setFavorites] = useState<SymbolItem[]>([]);
@@ -84,7 +79,9 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 const parsed: Category[] = JSON.parse(savedCats);
                 const mergedCategories = INITIAL_CATEGORIES.map(initialCat => {
                     const savedCat = parsed.find(c => c.id === initialCat.id);
-                    return savedCat ? savedCat : initialCat;
+                    // Garante que usamos a cor e o ícone MAIS RECENTES do vocab.ts para as categorias padrão, 
+                    // mas preservamos os itens salvos se existirem.
+                    return savedCat ? { ...savedCat, color: initialCat.color, icon: initialCat.icon } : initialCat;
                 });
                 const customCategories = parsed.filter(c => c.isCustom);
                 setCategories([...customCategories, ...mergedCategories]);
@@ -199,7 +196,6 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const deleteCategory = (id: string) => {
         saveCategories(categories.filter(c => c.id !== id));
-        if (activeCategoryId === id) goBack();
     };
 
     const reorderCategoryItems = (categoryId: string, newOrder: SymbolItem[]) => {
@@ -266,10 +262,6 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         saveAgendas(agendaItems.map(item => item.id === id ? { ...item, completed: !item.completed } : item));
     };
 
-    // Navegação e sentença
-    const navigateToCategory = (id: string) => setActiveCategoryId(id);
-    const goBack = () => setActiveCategoryId(null);
-
     const addToSentence = (item: SymbolItem) => {
         setSentence(prev => [...prev, { ...item, tempId: Date.now().toString() + Math.random() }]);
     };
@@ -290,7 +282,6 @@ export const AACProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         <AACContext.Provider value={{
             activeTab, setActiveTab,
             categories, addCategory, updateCategory, deleteCategory,
-            activeCategoryId, navigateToCategory, goBack,
             addSymbolToCategory, updateSymbolInCategory, deleteSymbolFromCategory, reorderCategoryItems,
             favorites, addFavorite, removeFavorite, reorderFavorites,
             agendaItems, addAgendaItem, deleteAgendaItem, toggleAgendaItem, updateAgendaItem,

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { User } from 'lucide-react-native';
-import SettingsModal from '../modals/SettingsModal';
+import SettingsModal from '../../../app/(modals)/settings';
 
 export default function Header() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

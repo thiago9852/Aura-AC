@@ -1,16 +1,17 @@
-// src/screens/AgendaScreen.tsx
-import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { useAAC } from '../context/AACContext';
-import { Calendar, Plus, CheckCircle2, Circle, Clock, Trash2, CalendarDays, ArchiveRestore } from 'lucide-react-native';
-import CreateAgendaModal from '../components/modals/CreateAgendaModal';
+// src/components/screens/AgendaView.tsx
 
-export default function AgendaScreen() {
-    const { activeTab, agendaItems, toggleAgendaItem, deleteAgendaItem } = useAAC();
+import React, { useState, useMemo } from 'react';
+import Page from '../layout/Page';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { useAAC } from '../../context/AACContext';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import { Calendar, Plus, CheckCircle2, Circle, Clock, Trash2, CalendarDays, ArchiveRestore } from 'lucide-react-native';
+import CreateAgendaModal from '../modals/CreateAgendaModal';
+
+export default function Agenda() {
+    const { agendaItems, toggleAgendaItem, deleteAgendaItem } = useAAC();
     const [showAddModal, setShowAddModal] = useState(false);
     const [viewMode, setViewMode] = useState<'active' | 'archived'>('active');
-
-    if (activeTab !== 'agenda') return null;
 
     const filteredItems = useMemo(() => {
         const today = new Date();
@@ -23,7 +24,6 @@ export default function AgendaScreen() {
             const itemDate = item.date ? new Date(item.date) : new Date();
             itemDate.setHours(0, 0, 0, 0);
 
-            // Arquivado = concluído OU dia passou
             const isPast = itemDate < today;
 
             if (item.completed || isPast) {
@@ -33,9 +33,7 @@ export default function AgendaScreen() {
             }
         });
 
-        // Ordena os ativos por data mais próxima
         active.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        // Ordena os arquivados pelos mais recentes primeiro
         archived.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
         return viewMode === 'active' ? active : archived;
@@ -45,7 +43,7 @@ export default function AgendaScreen() {
         return (
             <View style={[styles.card, item.completed && styles.cardCompleted]}>
                 <TouchableOpacity style={styles.checkBtn} onPress={() => toggleAgendaItem(item.id)} activeOpacity={0.6}>
-                    {item.completed ? <CheckCircle2 size={28} color="#10b981" /> : <Circle size={28} color="#cbd5e1" />}
+                    {item.completed ? <CheckCircle2 size={28} color="#10b981" /> : <CheckCircle2 size={28} color="#cbd5e1" />}
                 </TouchableOpacity>
 
                 <View style={styles.cardInfo}>
@@ -81,19 +79,25 @@ export default function AgendaScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <Page>
             <View style={styles.header}>
                 <View style={[styles.headerIconContainer, { backgroundColor: '#e0e7ff' }]}><Calendar size={24} color="#4f46e5" /></View>
                 <Text style={styles.title}>Minha Rotina</Text>
             </View>
 
-            <View style={styles.tabContainer}>
-                <TouchableOpacity style={[styles.viewTab, viewMode === 'active' && styles.viewTabActive]} onPress={() => setViewMode('active')} activeOpacity={0.7}>
-                    <Text style={[styles.viewTabText, viewMode === 'active' && styles.viewTabTextActive]}>Pendente</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.viewTab, viewMode === 'archived' && styles.viewTabActive]} onPress={() => setViewMode('archived')} activeOpacity={0.7}>
-                    <Text style={[styles.viewTabText, viewMode === 'archived' && styles.viewTabTextActive]}>Histórico</Text>
-                </TouchableOpacity>
+            <View style={styles.segmentedContainer}>
+                <SegmentedControl
+                    values={['Pendente', 'Histórico']}
+                    selectedIndex={viewMode === 'active' ? 0 : 1}
+                    onChange={(event) => {
+                        const index = event.nativeEvent.selectedSegmentIndex;
+                        setViewMode(index === 0 ? 'active' : 'archived');
+                    }}
+                    appearance="light"
+                    style={{ height: 48 }}
+                    fontStyle={{ color: '#64748b', fontSize: 16 }}
+                    activeFontStyle={{ color: '#4f46e5', fontWeight: 'bold', fontSize: 16 }}
+                />
             </View>
 
             {filteredItems.length === 0 ? (
@@ -127,20 +131,14 @@ export default function AgendaScreen() {
             </TouchableOpacity>
 
             <CreateAgendaModal visible={showAddModal} onClose={() => setShowAddModal(false)} />
-        </View>
+        </Page>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: 'transparent' },
     header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12, backgroundColor: 'transparent', gap: 12 },
     headerIconContainer: { padding: 8, borderRadius: 12 },
     title: { fontSize: 24, fontWeight: '800', color: '#0f172a' },
-    tabContainer: { flexDirection: 'row', backgroundColor: '#e2e8f0', marginHorizontal: 20, marginBottom: 10, borderRadius: 12, padding: 4 },
-    viewTab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
-    viewTabActive: { backgroundColor: 'white', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
-    viewTabText: { fontSize: 13, fontWeight: '600', color: '#64748b' },
-    viewTabTextActive: { color: '#0f172a' },
     listContent: { padding: 16, paddingBottom: 120 },
     card: { backgroundColor: 'white', borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 8, elevation: 2, borderWidth: 1, borderColor: 'transparent' },
     cardCompleted: { backgroundColor: '#f8fafc', opacity: 0.8, borderColor: '#f1f5f9' },
@@ -157,5 +155,9 @@ const styles = StyleSheet.create({
     emptyState: { alignItems: 'center', justifyContent: 'center', marginTop: 100, paddingHorizontal: 40 },
     emptyText: { textAlign: 'center', color: '#64748b', marginTop: 16, fontSize: 18, fontWeight: '600' },
     emptySubtext: { textAlign: 'center', color: '#94a3b8', marginTop: 8, fontSize: 14 },
-    fab: { position: 'absolute', bottom: 120, right: 24, backgroundColor: '#4f46e5', width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', shadowColor: '#4f46e5', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 }
+    fab: { position: 'absolute', bottom: 100, right: 24, backgroundColor: '#4f46e5', width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', shadowColor: '#4f46e5', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
+    segmentedContainer: {
+        paddingHorizontal: 20,
+        marginBottom: 15,
+    },
 });
