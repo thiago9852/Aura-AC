@@ -13,12 +13,14 @@ import CreateSymbolModal from "../modals/CreateSymbolModal";
 
 import * as Icons from "lucide-react-native";
 import { SymbolItem } from "../../types";
+import { useTheme } from "../../theme/useTheme";
 
-const { ArrowLeft, Folder, Plus } = Icons;
+const { ChevronLeft, Folder, Plus } = Icons;
 
 export default function CategoryView() {
 
   const { categories, reorderCategoryItems, settings, addToSentence, speak } = useAAC();
+  const { colors, isDark } = useTheme();
 
   const params = useLocalSearchParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -62,16 +64,19 @@ export default function CategoryView() {
       <SentenceBar />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} />
+        <TouchableOpacity style={[styles.backButton, { backgroundColor: colors.border, borderColor: colors.glassBorder }]} onPress={() => router.back()}>
+          <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
 
-        <Folder size={20} color={category.color} />
-        <Text style={styles.title}>{category.name}</Text>
+        <View style={[styles.headerIconBadge, { backgroundColor: isDark ? `${category.color}30` : `${category.color}20`, borderColor: colors.glassBorder, borderWidth: 1 }]}>
+          <Folder size={20} color={category.color} />
+        </View>
+        <Text style={[styles.title, { color: colors.text }]}>{category.name}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Sortable.Grid
+        <View style={[styles.sectionContainer, { backgroundColor: colors.card, shadowColor: colors.cardShadow }]}>
+          <Sortable.Grid
           columns={numColumns}
           data={dataWithAddButton}
           keyExtractor={(item: any) => item.id}
@@ -91,13 +96,13 @@ export default function CategoryView() {
             if (item.isAddButton) {
               return (
                 <Sortable.Touchable
-                  style={styles.addCard}
+                  style={[styles.addCard, { backgroundColor: isDark ? colors.border : '#f1f5f9', borderColor: colors.textMuted }]}
                   onTap={() => {
                     setSelectedSymbol(null);
                     setShowCreateModal(true);
                   }}
                 >
-                  <Plus color="#6f7276" size={32} />
+                  <Plus color={colors.textSecondary} size={32} />
                 </Sortable.Touchable>
               );
             }
@@ -117,9 +122,10 @@ export default function CategoryView() {
             );
           }}
         />
+        </View>
       </ScrollView>
 
-      {/* MODAL DE AÇÕES */}
+      {/* Modal de Ações */}
       <SymbolActionModal
         visible={showActionModal}
         onClose={() => setShowActionModal(false)}
@@ -128,7 +134,7 @@ export default function CategoryView() {
         onEdit={handleEdit}
       />
 
-      {/* MODAL CRIAR / EDITAR */}
+      {/* Modal add/edit */}
       <CreateSymbolModal
         visible={showCreateModal}
         onClose={() => setShowCreateModal(false)}
@@ -145,12 +151,32 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    gap: 10
+    paddingBottom: 0,
+    gap: 12
+  },
+
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,             
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+
+  headerIconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   title: {
-    fontSize: 22,
-    fontWeight: "800"
+    fontSize: 20,
+    fontWeight: "800",
+    letterSpacing: -0.5,
   },
 
   content: {
@@ -158,11 +184,19 @@ const styles = StyleSheet.create({
     paddingBottom: 150
   },
 
+  sectionContainer: {
+    borderRadius: 24,
+    padding: 16,
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    minHeight: 200,
+  },
+
   addCard: {
     borderWidth: 2,
-    borderColor: "#cbd5e1",
     borderStyle: "dashed",
-    backgroundColor: "#f1f5f9",
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",

@@ -4,6 +4,7 @@ import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import * as Icons from 'lucide-react-native';
 import { SymbolItem } from '../../types';
 import { useAAC } from '../../context/AACContext';
+import { useTheme } from '../../theme/useTheme';
 
 interface Props {
   item: SymbolItem;
@@ -12,28 +13,31 @@ interface Props {
   isSortable?: boolean;
 }
 
-// Paleta de cores Fitz
-const FITZGERALD_COLORS: any = {
-  yellow: { bg: '#fef9c3', fg: '#ca8a04', shadow: '#eab308' },
-  green: { bg: '#dcfce7', fg: '#16a34a', shadow: '#22c55e' },
-  blue: { bg: '#dbeafe', fg: '#2563eb', shadow: '#3b82f6' },
-  red: { bg: '#fee2e2', fg: '#dc2626', shadow: '#ef4444' },
-  purple: { bg: '#f3e8ff', fg: '#9333ea', shadow: '#a855f7' },
-  white: { bg: '#ffffff', fg: '#475569', shadow: '#94a3b8' },
-};
+// Paleta de cores Fitz adaptável
+const getFitzgeraldColors = (isDark: boolean): any => ({
+  yellow: { bg: isDark ? '#422006' : '#fef9c3', fg: isDark ? '#fef08a' : '#ca8a04', shadow: isDark ? '#713f12' : '#eab308' },
+  green: { bg: isDark ? '#052e16' : '#dcfce7', fg: isDark ? '#bbf7d0' : '#16a34a', shadow: isDark ? '#14532d' : '#22c55e' },
+  blue: { bg: isDark ? '#172554' : '#dbeafe', fg: isDark ? '#bfdbfe' : '#2563eb', shadow: isDark ? '#1e3a8a' : '#3b82f6' },
+  red: { bg: isDark ? '#450a0a' : '#fee2e2', fg: isDark ? '#fecaca' : '#dc2626', shadow: isDark ? '#7f1d1d' : '#ef4444' },
+  purple: { bg: isDark ? '#3b0764' : '#f3e8ff', fg: isDark ? '#e9d5ff' : '#9333ea', shadow: isDark ? '#581c87' : '#a855f7' },
+  white: { bg: isDark ? '#1e293b' : '#ffffff', fg: isDark ? '#f8fafc' : '#475569', shadow: isDark ? '#020617' : '#94a3b8' },
+});
 
 export default function SymbolCard({ item, onPress, onLongPress, isSortable = false }: Props) {
   const { settings } = useAAC();
+  const { colors, isDark } = useTheme();
   const Icon = Icons[item.iconName as keyof typeof Icons] as any;
+  
+  const FITZGERALD_COLORS = getFitzgeraldColors(isDark);
   const theme = FITZGERALD_COLORS[item.colorCode || 'white'] || FITZGERALD_COLORS.white;
 
   // Lógica do alto contraste
   const isHighContrast = settings.highContrast;
-  const bg = isHighContrast ? '#0f172a' : theme.bg;
-  const fg = isHighContrast ? '#ffffff' : theme.fg;
+  const bg = isHighContrast ? colors.background : theme.bg;
+  const fg = isHighContrast ? colors.text : theme.fg;
   const borderColor = isHighContrast ? theme.shadow : 'transparent';
   const borderWidth = isHighContrast ? 4 : 0;
-  const iconBg = isHighContrast ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.7)';
+  const iconBg = isHighContrast ? 'rgba(255,255,255,0.1)' : (isDark ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.7)');
 
   
   const lastPress = useRef<number>(0);
@@ -92,7 +96,7 @@ export default function SymbolCard({ item, onPress, onLongPress, isSortable = fa
         { 
           backgroundColor: bg, 
           shadowColor: theme.shadow, 
-          width: finalWidth,
+          width: finalWidth as any,
           borderColor: borderColor,
           borderWidth: borderWidth
         }

@@ -13,6 +13,7 @@ import {
     X, Dumbbell, Hospital, BookMarked, Laptop, PenTool, Coffee, ShoppingCart,
     Calendar, Bell, Plane, MapPin, Globe, Bus, Film, Users
 } from 'lucide-react-native';
+import { useTheme } from '../../theme/useTheme';
 
 const ICON_MAP: any = {
     MessageCircle, Heart, Star, Smile, Utensils, Home,
@@ -24,6 +25,7 @@ const ICON_MAP: any = {
 export default function Manage() {
     const { categories, deleteCategory } = useAAC();
     const [showModal, setShowModal] = useState(false);
+    const { colors, isDark } = useTheme();
 
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
@@ -51,8 +53,8 @@ export default function Manage() {
     return (
         <Page>
             <View style={styles.header}>
-                <View style={[styles.headerIconContainer, { backgroundColor: '#e0e7ff' }]}><FolderCog size={24} color="#4f46e5" /></View>
-                <Text style={styles.title}>Categorias</Text>
+                <View style={[styles.headerIconContainer, { backgroundColor: colors.primaryBackground }]}><FolderCog size={24} color={colors.primary} /></View>
+                <Text style={[styles.title, { color: colors.text }]}>Categorias</Text>
             </View>
 
             <FlatList
@@ -61,31 +63,31 @@ export default function Manage() {
                 contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}
                 renderItem={({ item }) => {
                     const IconComponent = ICON_MAP[item.icon] || LayoutGrid;
-                    const catColor = item.color.startsWith('#') ? item.color : '#3b82f6';
+                    const catColor = item.color.startsWith('#') ? item.color : colors.primary;
 
                     return (
-                        <View style={styles.item}>
-                            <View style={[styles.iconBox, { backgroundColor: catColor + '20' }]}>
+                        <View style={[styles.item, { backgroundColor: colors.card, shadowColor: colors.cardShadow }]}>
+                            <View style={[styles.iconBox, { backgroundColor: isDark ? `${catColor}30` : catColor + '20' }]}>
                                 <IconComponent size={24} color={catColor} />
                             </View>
                             <View style={styles.info}>
-                                <Text style={styles.itemName}>{item.name}</Text>
-                                <Text style={styles.itemMeta}>{item.items.length} itens</Text>
+                                <Text style={[styles.itemName, { color: colors.text }]}>{item.name}</Text>
+                                <Text style={[styles.itemMeta, { color: colors.textSecondary }]}>{item.items.length} itens</Text>
                             </View>
                             <View style={styles.actions}>
                                 {item.id !== 'core' && (
                                     <>
                                         <TouchableOpacity
                                             onPress={() => handleEdit(item)}
-                                            style={[styles.actionBtn, styles.editBtn]}
+                                            style={[styles.actionBtn, { backgroundColor: colors.primaryBackground }]}
                                         >
-                                            <Pencil size={20} color="#3b82f6" />
+                                            <Pencil size={20} color={colors.primary} />
                                         </TouchableOpacity>
                                         <TouchableOpacity
                                             onPress={() => handleDelete(item.id, item.name)}
-                                            style={[styles.actionBtn, styles.deleteBtn]}
+                                            style={[styles.actionBtn, { backgroundColor: colors.dangerBackground }]}
                                         >
-                                            <Trash2 size={20} color="#ef4444" />
+                                            <Trash2 size={20} color={colors.danger} />
                                         </TouchableOpacity>
                                     </>
                                 )}
@@ -102,7 +104,7 @@ export default function Manage() {
             />
 
             <TouchableOpacity
-                style={styles.fab}
+                style={[styles.fab, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
                 onPress={handleCreate}
                 activeOpacity={0.8}
             >
@@ -115,16 +117,14 @@ export default function Manage() {
 const styles = StyleSheet.create({
     header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12, backgroundColor: 'transparent', gap: 12 },
     headerIconContainer: { padding: 8, borderRadius: 12 },
-    title: { fontSize: 24, fontWeight: '800', color: '#0f172a' },
-    item: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', padding: 12, borderRadius: 12, elevation: 1, gap: 12 },
+    title: { fontSize: 24, fontWeight: '800' },
+    item: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 12, elevation: 1, gap: 12 },
     iconBox: { width: 48, height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
     info: { flex: 1 },
-    itemName: { fontSize: 16, fontWeight: 'bold', color: '#334155' },
-    itemMeta: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
+    itemName: { fontSize: 16, fontWeight: 'bold' },
+    itemMeta: { fontSize: 12, marginTop: 2 },
     actions: { flexDirection: 'row', gap: 8 },
     actionBtn: { padding: 10, borderRadius: 8 },
-    editBtn: { backgroundColor: '#eff6ff' },
-    deleteBtn: { backgroundColor: '#fef2f2' },
     fab: {
         position: 'absolute',
         bottom: 100,
@@ -132,10 +132,8 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 32,
-        backgroundColor: '#4f46e5',
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#4f46e5',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.3,
         shadowRadius: 16,

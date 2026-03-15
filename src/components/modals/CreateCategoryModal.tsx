@@ -8,6 +8,7 @@ import {
 } from 'lucide-react-native';
 import { useAAC } from '../../context/AACContext';
 import { Category } from '../../types';
+import { useTheme } from '../../theme/useTheme';
 
 const AVAILABLE_ICONS = [
   { name: 'Dumbbell', Icon: Dumbbell },       
@@ -50,6 +51,7 @@ interface Props {
 
 export default function CreateCategoryModal({ visible, onClose, editingCategory }: Props) {
     const { addCategory, updateCategory } = useAAC();
+    const { colors, isDark } = useTheme();
     
     const [name, setName] = useState('');
     const [selectedIcon, setSelectedIcon] = useState('MessageCircle');
@@ -83,49 +85,51 @@ export default function CreateCategoryModal({ visible, onClose, editingCategory 
 
     return (
         <Modal visible={visible} animationType="slide" transparent>
-            <View style={styles.overlay}>
-                <View style={styles.modal}>
+            <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
+                <View style={[styles.modal, { backgroundColor: colors.background }]}>
                     <View style={styles.header}>
-                        <Text style={styles.title}>
+                        <Text style={[styles.title, { color: colors.text }]}>
                             {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
                         </Text>
-                        <TouchableOpacity onPress={onClose}><X size={24} color="#64748b" /></TouchableOpacity>
+                        <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: isDark ? colors.border : '#e2e8f0', borderColor: isDark ? colors.textMuted : '#cbd5e1' }]}>
+                            <X size={20} color={colors.textSecondary} />
+                        </TouchableOpacity>
                     </View>
 
-                    <Text style={styles.label}>Nome</Text>
+                    <Text style={[styles.label, { color: colors.textSecondary }]}>Nome</Text>
                     <TextInput 
-                        style={styles.input} 
+                        style={[styles.input, { borderColor: colors.border, color: colors.text }]} 
                         placeholder="Ex: Escola, Lazer..."
-                        placeholderTextColor="#94a3b8"
+                        placeholderTextColor={colors.textMuted}
                         value={name}
                         onChangeText={setName}
                     />
 
-                    <Text style={styles.label}>Ícone</Text>
+                    <Text style={[styles.label, { color: colors.textSecondary }]}>Ícone</Text>
                     <View style={styles.row}>
                         {AVAILABLE_ICONS.map(({ name: iconName, Icon }) => (
                             <TouchableOpacity 
                                 key={iconName} 
-                                style={[styles.iconBtn, selectedIcon === iconName && styles.selected]}
+                                style={[styles.iconBtn, { borderColor: colors.border, backgroundColor: isDark ? colors.border : '#f1f5f9' }, selectedIcon === iconName && [styles.selected, { backgroundColor: colors.primary, borderColor: colors.primary }]]}
                                 onPress={() => setSelectedIcon(iconName)}
                             >
-                                <Icon size={24} color={selectedIcon === iconName ? 'white' : '#64748b'} />
+                                <Icon size={24} color={selectedIcon === iconName ? 'white' : colors.textSecondary} />
                             </TouchableOpacity>
                         ))}
                     </View>
 
-                    <Text style={styles.label}>Cor</Text>
+                    <Text style={[styles.label, { color: colors.textSecondary }]}>Cor</Text>
                     <View style={styles.row}>
                         {COLORS.map(color => (
                             <TouchableOpacity 
                                 key={color} 
-                                style={[styles.colorBtn, { backgroundColor: color }, selectedColor === color && styles.selectedColor]}
+                                style={[styles.colorBtn, { backgroundColor: color }, selectedColor === color && [styles.selectedColor, { borderColor: colors.text }]]}
                                 onPress={() => setSelectedColor(color)}
                             />
                         ))}
                     </View>
 
-                    <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+                    <TouchableOpacity style={[styles.saveBtn, { backgroundColor: colors.primary }]} onPress={handleSave}>
                         <Text style={styles.saveText}>
                             {editingCategory ? 'Salvar Alterações' : 'Criar Categoria'}
                         </Text>
@@ -137,17 +141,18 @@ export default function CreateCategoryModal({ visible, onClose, editingCategory 
 }
 
 const styles = StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.5)', justifyContent: 'flex-end' },
-    modal: { backgroundColor: '#f8fafc', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40, elevation: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-    title: { fontSize: 20, fontWeight: 'bold', color: '#1e293b' },
-    label: { fontSize: 14, fontWeight: '600', color: '#475569', marginBottom: 8, marginTop: 12 },
-    input: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12, padding: 12, fontSize: 16 },
+    overlay: { flex: 1, justifyContent: 'flex-end' },
+    modal: { borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40, elevation: 20 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    title: { fontSize: 20, fontWeight: 'bold' },
+    closeBtn: { padding: 8, borderRadius: 20, borderWidth: 1 },
+    label: { fontSize: 14, fontWeight: '600', marginBottom: 8, marginTop: 12 },
+    input: { borderWidth: 1, borderRadius: 12, padding: 12, fontSize: 16 },
     row: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    iconBtn: { padding: 10, borderRadius: 12, borderWidth: 1, borderColor: '#cbd5e1', backgroundColor: '#f1f5f9' },
-    selected: { backgroundColor: '#3b82f6' },
+    iconBtn: { padding: 10, borderRadius: 12, borderWidth: 1 },
+    selected: {},
     colorBtn: { width: 32, height: 32, borderRadius: 16 },
-    selectedColor: { borderWidth: 3, borderColor: '#1e293b' },
-    saveBtn: { backgroundColor: '#2563eb', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24 },
+    selectedColor: { borderWidth: 3 },
+    saveBtn: { padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24 },
     saveText: { color: 'white', fontWeight: 'bold', fontSize: 16 }
 });

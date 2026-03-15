@@ -3,22 +3,24 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { User } from 'lucide-react-native';
 import SettingsModal from '../../../app/(modals)/settings';
+import { useTheme } from '../../theme/useTheme';
 
 export default function Header() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { backgroundColor: colors.background }]}>
       <View>
-        <Text style={styles.greeting}>Bem-vindo,</Text>
-        <Text style={styles.username}>Visitante</Text>
+        <Text style={[styles.greeting, { color: colors.textSecondary }]}>Bem-vindo,</Text>
+        <Text style={[styles.username, { color: colors.text }]}>Visitante</Text>
       </View>
       <TouchableOpacity
-        style={styles.profileBtn}
+        style={[styles.profileBtn, { backgroundColor: colors.card, borderColor: colors.glassBorder, shadowColor: colors.cardShadow }]}
         activeOpacity={0.7}
         onPress={() => setIsSettingsOpen(true)}
       >
-        <User size={24} color="#334155" />
+        <User size={24} color={colors.text} />
       </TouchableOpacity>
 
       <SettingsModal visible={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
@@ -33,15 +35,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 16,
-    backgroundColor: '#f8fafc',
   },
-  greeting: { fontSize: 13, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1.2, fontWeight: '600' },
-  username: { fontSize: 24, fontWeight: '800', color: '#0f172a', marginTop: 2 },
+  greeting: { fontSize: 13, textTransform: 'uppercase', letterSpacing: 1.2, fontWeight: '600' },
+  username: { fontSize: 24, fontWeight: '800', marginTop: 2 },
   profileBtn: {
     padding: 12,
-    backgroundColor: '#ffffff',
     borderRadius: 99,
-    shadowColor: '#000',
+    borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,

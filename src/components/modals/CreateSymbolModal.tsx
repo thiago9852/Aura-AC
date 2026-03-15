@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { View, Text, Modal, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useAAC } from '../../context/AACContext';
 import { SymbolItem } from '../../types';
+import { useTheme } from '../../theme/useTheme';
 
 import {
   X, Star, Heart, Smile, Frown, Coffee, Utensils, Apple, Car, Bus,
@@ -153,6 +154,7 @@ type Mode = 'icon' | 'image' | 'text';
 
 export default function CreateSymbolModal({ visible, onClose, categoryId, initialData }: Props) {
     const { addSymbolToCategory, updateSymbolInCategory } = useAAC();
+    const { colors, isDark } = useTheme();
 
     const [label, setLabel] = useState('');
     const [mode, setMode] = useState<Mode>('icon');
@@ -198,61 +200,63 @@ export default function CreateSymbolModal({ visible, onClose, categoryId, initia
 
     return (
         <Modal visible={visible} animationType="slide" transparent>
-            <View style={styles.overlay}>
-                <View style={styles.modal}>
+            <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
+                <View style={[styles.modal, { backgroundColor: colors.background }]}>
                     <View style={styles.header}>
-                        <Text style={styles.title}>{initialData ? 'Editar Cartão' : 'Novo Cartão'}</Text>
-                        <TouchableOpacity onPress={onClose}><X size={24} color="#64748b" /></TouchableOpacity>
+                        <Text style={[styles.title, { color: colors.text }]}>{initialData ? 'Editar Cartão' : 'Novo Cartão'}</Text>
+                        <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: isDark ? colors.border : '#e2e8f0', borderColor: isDark ? colors.textMuted : '#cbd5e1' }]}>
+                            <X size={20} color={colors.textSecondary} />
+                        </TouchableOpacity>
                     </View>
 
                     <ScrollView contentContainerStyle={styles.scrollContent}>
-                        <Text style={styles.label}>Texto do Cartão</Text>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>Texto do Cartão</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
                             placeholder="Ex: Água, Banheiro..."
-                            placeholderTextColor="#64748b"
+                            placeholderTextColor={colors.textMuted}
                             value={label}
                             onChangeText={setLabel}
                         />
 
-                        <Text style={styles.label}>Tipo de Cartão</Text>
-                        <View style={styles.tabs}>
-                            <TouchableOpacity style={[styles.tab, mode === 'icon' && styles.activeTab]} onPress={() => setMode('icon')}>
-                                <Text style={[styles.tabText, mode === 'icon' && styles.activeTabText]}>Ícone</Text>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>Tipo de Cartão</Text>
+                        <View style={[styles.tabs, { backgroundColor: isDark ? colors.border : '#f1f5f9' }]}>
+                            <TouchableOpacity style={[styles.tab, mode === 'icon' && [styles.activeTab, { backgroundColor: colors.card }]]} onPress={() => setMode('icon')}>
+                                <Text style={[styles.tabText, { color: colors.textSecondary }, mode === 'icon' && { color: colors.primary }]}>Ícone</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={[styles.tab, mode === 'image' && styles.activeTab]} onPress={() => setMode('image')}>
-                                <Text style={[styles.tabText, mode === 'image' && styles.activeTabText]}>Foto</Text>
+                            <TouchableOpacity style={[styles.tab, mode === 'image' && [styles.activeTab, { backgroundColor: colors.card }]]} onPress={() => setMode('image')}>
+                                <Text style={[styles.tabText, { color: colors.textSecondary }, mode === 'image' && { color: colors.primary }]}>Foto</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={[styles.tab, mode === 'text' && styles.activeTab]} onPress={() => setMode('text')}>
-                                <Text style={[styles.tabText, mode === 'text' && styles.activeTabText]}>Texto</Text>
+                            <TouchableOpacity style={[styles.tab, mode === 'text' && [styles.activeTab, { backgroundColor: colors.card }]]} onPress={() => setMode('text')}>
+                                <Text style={[styles.tabText, { color: colors.textSecondary }, mode === 'text' && { color: colors.primary }]}>Texto</Text>
                             </TouchableOpacity>
                         </View>
 
                         {mode === 'icon' && (
                             <View>
-                                <Text style={styles.label}>Escolha um Ícone</Text>
+                                <Text style={[styles.label, { color: colors.textSecondary }]}>Escolha um Ícone</Text>
                                 
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.iconCategories}>
                                     {Object.keys(ICON_GROUPS).map(group => (
                                         <TouchableOpacity 
                                             key={group} 
-                                            style={[styles.categoryChip, selectedIconCategory === group && styles.activeCategoryChip]}
+                                            style={[styles.categoryChip, { backgroundColor: isDark ? colors.border : '#f1f5f9', borderColor: colors.border }, selectedIconCategory === group && [styles.activeCategoryChip, { backgroundColor: colors.primary, borderColor: colors.primary }]]}
                                             onPress={() => setSelectedIconCategory(group)}
                                         >
-                                            <Text style={[styles.categoryChipText, selectedIconCategory === group && styles.activeCategoryChipText]}>{group}</Text>
+                                            <Text style={[styles.categoryChipText, { color: colors.textSecondary }, selectedIconCategory === group && styles.activeCategoryChipText]}>{group}</Text>
                                         </TouchableOpacity>
                                     ))}
                                 </ScrollView>
 
-                                <View style={styles.iconsContainerBorder}>
+                                <View style={[styles.iconsContainerBorder, { borderColor: colors.border, backgroundColor: colors.background }]}>
                                     <ScrollView style={styles.iconsScroll} contentContainerStyle={styles.grid} nestedScrollEnabled={true}>
                                         {ICON_GROUPS[selectedIconCategory].map(({ name: iconName, Icon }) => (
                                             <TouchableOpacity
                                                 key={iconName}
-                                                style={[styles.iconBtn, selectedIcon === iconName && styles.selected]}
+                                                style={[styles.iconBtn, { borderColor: colors.border, backgroundColor: isDark ? colors.border : '#f1f5f9' }, selectedIcon === iconName && [styles.selected, { backgroundColor: colors.primary }]]}
                                                 onPress={() => setSelectedIcon(iconName)}
                                             >
-                                                <Icon size={24} color={selectedIcon === iconName ? 'white' : '#64748b'} />
+                                                <Icon size={24} color={selectedIcon === iconName ? 'white' : colors.textSecondary} />
                                             </TouchableOpacity>
                                         ))}
                                     </ScrollView>
@@ -261,25 +265,25 @@ export default function CreateSymbolModal({ visible, onClose, categoryId, initia
                         )}
 
                         {mode === 'image' && (
-                            <View style={styles.placeholderBox}>
-                                <ImageIcon size={32} color="#cbd5e1" />
-                                <Text style={styles.placeholderText}>Upload de fotos em breve</Text>
+                            <View style={[styles.placeholderBox, { borderColor: colors.border }]}>
+                                <ImageIcon size={32} color={colors.textMuted} />
+                                <Text style={[styles.placeholderText, { color: colors.textMuted }]}>Upload de fotos em breve</Text>
                             </View>
                         )}
 
-                        <Text style={styles.label}>Cor da Borda (Fitzgerald)</Text>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>Cor da Borda (Fitzgerald)</Text>
                         <View style={styles.colorRow}>
                             {COLORS.map(c => (
                                 <TouchableOpacity
                                     key={c.code}
-                                    style={[styles.colorBtn, { backgroundColor: c.hex }, selectedColorCode === c.code && styles.selectedColor]}
+                                    style={[styles.colorBtn, { backgroundColor: c.hex }, selectedColorCode === c.code && [styles.selectedColor, { borderColor: colors.text }]]}
                                     onPress={() => setSelectedColorCode(c.code)}
                                 />
                             ))}
                         </View>
-                        <Text style={styles.helperText}>Amarelo: Pessoas | Verde: Verbos | Azul: Adjetivos | Vermelho: Emergência | Roxo: Social</Text>
+                        <Text style={[styles.helperText, { color: colors.textMuted }]}>Amarelo: Pessoas | Verde: Verbos | Azul: Adjetivos | Vermelho: Emergência | Roxo: Social</Text>
 
-                        <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+                        <TouchableOpacity style={[styles.saveBtn, { backgroundColor: colors.success }]} onPress={handleSave}>
                             <Text style={styles.saveText}>{initialData ? 'Salvar' : 'Criar Cartão'}</Text>
                         </TouchableOpacity>
                     </ScrollView>
@@ -290,34 +294,34 @@ export default function CreateSymbolModal({ visible, onClose, categoryId, initia
 }
 
 const styles = StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.5)', justifyContent: 'flex-end' },
-    modal: { backgroundColor: '#f8fafc', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40, elevation: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center' },
-    title: { fontSize: 20, fontWeight: 'bold', color: '#1e293b' },
+    overlay: { flex: 1, justifyContent: 'flex-end' },
+    modal: { borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40, elevation: 20 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    title: { fontSize: 20, fontWeight: 'bold' },
+    closeBtn: { padding: 8, borderRadius: 20, borderWidth: 1 },
     scrollContent: { paddingBottom: 20 },
-    label: { fontSize: 14, fontWeight: '600', color: '#475569', marginBottom: 8, marginTop: 12 },
-    input: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12, padding: 12, fontSize: 16 },
-    tabs: { flexDirection: 'row', backgroundColor: '#f1f5f9', padding: 4, borderRadius: 12, marginBottom: 10 },
+    label: { fontSize: 14, fontWeight: '600', marginBottom: 8, marginTop: 12 },
+    input: { borderWidth: 1, borderRadius: 12, padding: 12, fontSize: 16 },
+    tabs: { flexDirection: 'row', padding: 4, borderRadius: 12, marginBottom: 10 },
     tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
-    activeTab: { backgroundColor: 'white', elevation: 1 },
-    tabText: { fontWeight: '600', color: '#64748b' },
-    activeTabText: { color: '#3b82f6' },
-    iconsContainerBorder: { borderWidth: 2, borderColor: '#e2e8f0', borderRadius: 12, padding: 6, backgroundColor: '#f8fafc' },
+    activeTab: { elevation: 1 },
+    tabText: { fontWeight: '600' },
+    iconsContainerBorder: { borderWidth: 2, borderRadius: 12, padding: 6 },
     iconsScroll: { height: 185 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 15 },
-    iconBtn: { width: '15%', height: '16%', aspectRatio: 1, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' },
-    selected: { backgroundColor: '#3b82f6' },
+    iconBtn: { width: '15%', height: '16%', aspectRatio: 1, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    selected: {},
     iconCategories: { marginBottom: 12, flexDirection: 'row' },
-    categoryChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: '#f1f5f9', marginRight: 8, borderWidth: 1, borderColor: '#e2e8f0' },
-    activeCategoryChip: { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
-    categoryChipText: { fontSize: 13, fontWeight: '600', color: '#64748b' },
+    categoryChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, marginRight: 8, borderWidth: 1 },
+    activeCategoryChip: {},
+    categoryChipText: { fontSize: 13, fontWeight: '600' },
     activeCategoryChipText: { color: 'white' },
     colorRow: { flexDirection: 'row', gap: 12 },
     colorBtn: { width: 32, height: 32, borderRadius: 16 },
-    selectedColor: { borderWidth: 3, borderColor: '#1e293b' },
-    helperText: { fontSize: 11, color: '#94a3b8', marginTop: 8 },
-    placeholderBox: { borderWidth: 2, borderColor: '#e2e8f0', borderStyle: 'dashed', borderRadius: 12, height: 100, alignItems: 'center', justifyContent: 'center', gap: 8 },
-    placeholderText: { color: '#94a3b8', fontSize: 12 },
-    saveBtn: { backgroundColor: '#22c55e', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24 },
+    selectedColor: { borderWidth: 3 },
+    helperText: { fontSize: 11, marginTop: 8 },
+    placeholderBox: { borderWidth: 2, borderStyle: 'dashed', borderRadius: 12, height: 100, alignItems: 'center', justifyContent: 'center', gap: 8 },
+    placeholderText: { fontSize: 12 },
+    saveBtn: { padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24 },
     saveText: { color: 'white', fontWeight: 'bold', fontSize: 16 }
 });
